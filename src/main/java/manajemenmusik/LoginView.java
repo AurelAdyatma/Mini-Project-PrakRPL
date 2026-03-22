@@ -23,30 +23,33 @@ public class LoginView {
         root = new VBox();
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(30));
-        root.setStyle("-fx-background-color: linear-gradient(to bottom right, #EAF2FF, #F8FAFC);");
+        root.setStyle(
+                "-fx-background-color: linear-gradient(to bottom right, #0F3D91, #2563EB, #60A5FA);" +
+                "-fx-font-family: 'Segoe UI';"
+        );
 
-        VBox cardLogin = new VBox(12);
+        VBox cardLogin = new VBox(14);
         cardLogin.setAlignment(Pos.CENTER_LEFT);
-        cardLogin.setPadding(new Insets(25));
-        cardLogin.setMaxWidth(340);
+        cardLogin.setPadding(new Insets(28));
+        cardLogin.setMaxWidth(360);
         cardLogin.setStyle(
-                "-fx-background-color: white;" +
-                "-fx-background-radius: 20;" +
-                "-fx-border-radius: 20;" +
-                "-fx-border-color: #DCE3EA;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 15, 0, 0, 4);"
+                "-fx-background-color: rgba(255,255,255,0.95);" +
+                "-fx-background-radius: 24;" +
+                "-fx-border-radius: 24;" +
+                "-fx-border-color: rgba(255,255,255,0.35);" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 22, 0, 0, 8);"
         );
 
-        Label lblJudul = new Label("MiniProject");
-        lblJudul.setStyle(
-                "-fx-font-size: 28px;" +
+        Label lblMini = new Label("MiniProject");
+        lblMini.setStyle(
+                "-fx-font-size: 30px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-text-fill: #1E3A5F;"
+                "-fx-text-fill: #12356E;"
         );
 
-        Label lblSubJudul = new Label("Aplikasi Manajemen Musik");
-        lblSubJudul.setStyle(
-                "-fx-font-size: 18px;" +
+        Label lblJudul = new Label("Aplikasi Manajemen Musik");
+        lblJudul.setStyle(
+                "-fx-font-size: 19px;" +
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: #2563EB;"
         );
@@ -54,23 +57,24 @@ public class LoginView {
         Label lblDeskripsi = new Label("Silakan login untuk masuk ke sistem");
         lblDeskripsi.setStyle(
                 "-fx-font-size: 13px;" +
-                "-fx-text-fill: #6B7280;"
+                "-fx-text-fill: #64748B;"
         );
 
         Label lblUsername = new Label("Username");
         lblUsername.setStyle(
                 "-fx-font-size: 13px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-text-fill: #374151;"
+                "-fx-text-fill: #1E293B;"
         );
 
         tfUsername = new TextField();
         tfUsername.setPromptText("Masukkan username");
-        tfUsername.setPrefHeight(40);
+        tfUsername.setPrefHeight(42);
         tfUsername.setStyle(
-                "-fx-background-radius: 10;" +
-                "-fx-border-radius: 10;" +
-                "-fx-border-color: #D0D7DE;" +
+                "-fx-background-color: #F8FAFC;" +
+                "-fx-background-radius: 12;" +
+                "-fx-border-radius: 12;" +
+                "-fx-border-color: #BFDBFE;" +
                 "-fx-padding: 10;" +
                 "-fx-font-size: 13px;"
         );
@@ -79,36 +83,38 @@ public class LoginView {
         lblPassword.setStyle(
                 "-fx-font-size: 13px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-text-fill: #374151;"
+                "-fx-text-fill: #1E293B;"
         );
 
         pfPassword = new PasswordField();
         pfPassword.setPromptText("Masukkan password");
-        pfPassword.setPrefHeight(40);
+        pfPassword.setPrefHeight(42);
         pfPassword.setStyle(
-                "-fx-background-radius: 10;" +
-                "-fx-border-radius: 10;" +
-                "-fx-border-color: #D0D7DE;" +
+                "-fx-background-color: #F8FAFC;" +
+                "-fx-background-radius: 12;" +
+                "-fx-border-radius: 12;" +
+                "-fx-border-color: #BFDBFE;" +
                 "-fx-padding: 10;" +
                 "-fx-font-size: 13px;"
         );
 
         btnLogin = new Button("Masuk");
-        btnLogin.setPrefWidth(290);
-        btnLogin.setPrefHeight(42);
+        btnLogin.setPrefWidth(304);
+        btnLogin.setPrefHeight(44);
         btnLogin.setStyle(
-                "-fx-background-color: #2563EB;" +
+                "-fx-background-color: linear-gradient(to right, #1D4ED8, #2563EB);" +
                 "-fx-text-fill: white;" +
                 "-fx-font-size: 14px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-background-radius: 12;" +
-                "-fx-cursor: hand;"
+                "-fx-background-radius: 14;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(37,99,235,0.35), 10, 0, 0, 4);"
         );
 
         Label lblInfo = new Label("Login default: admin / 12345");
         lblInfo.setStyle(
                 "-fx-font-size: 12px;" +
-                "-fx-text-fill: #6B7280;" +
+                "-fx-text-fill: #64748B;" +
                 "-fx-font-style: italic;"
         );
 
@@ -116,8 +122,8 @@ public class LoginView {
         pfPassword.setOnAction(e -> prosesLogin());
 
         cardLogin.getChildren().addAll(
+                lblMini,
                 lblJudul,
-                lblSubJudul,
                 lblDeskripsi,
                 lblUsername,
                 tfUsername,
