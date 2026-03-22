@@ -13,7 +13,7 @@ public class Main extends Application {
 
     private void tampilkanLogin(Stage stage) {
         LoginView loginView = new LoginView(() -> tampilkanDashboard(stage));
-        Scene scene = new Scene(loginView.getView(), 500, 420);
+        Scene scene = new Scene(loginView.getView(), 520, 440);
 
         stage.setTitle("MiniProject Aplikasi Manajemen Musik");
         stage.setScene(scene);
@@ -22,7 +22,7 @@ public class Main extends Application {
 
     private void tampilkanDashboard(Stage stage) {
         MainView mainView = new MainView();
-        Scene scene = new Scene(mainView.getView(), 1100, 650);
+        Scene scene = new Scene(mainView.getView(), 1250, 720);
 
         stage.setTitle("MiniProject Aplikasi Manajemen Musik");
         stage.setScene(scene);
