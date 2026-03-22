@@ -51,13 +51,15 @@ public class MainView {
     private TextField buatTextField(String prompt) {
         TextField textField = new TextField();
         textField.setPromptText(prompt);
+        textField.setPrefHeight(40);
         textField.setStyle(
-                "-fx-background-radius: 10;" +
-                "-fx-border-radius: 10;" +
-                "-fx-border-color: #D0D7DE;" +
-                "-fx-background-color: white;" +
+                "-fx-background-color: #F8FBFF;" +
+                "-fx-background-radius: 12;" +
+                "-fx-border-radius: 12;" +
+                "-fx-border-color: #BFDBFE;" +
                 "-fx-padding: 10;" +
-                "-fx-font-size: 13px;"
+                "-fx-font-size: 13px;" +
+                "-fx-font-family: 'Segoe UI';"
         );
         return textField;
     }
@@ -83,60 +85,64 @@ public class MainView {
         tabel.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         tabel.setStyle(
                 "-fx-background-color: white;" +
-                "-fx-border-color: #DCE3EA;" +
-                "-fx-border-radius: 12;" +
-                "-fx-background-radius: 12;" +
-                "-fx-padding: 8;"
+                "-fx-background-radius: 16;" +
+                "-fx-border-radius: 16;" +
+                "-fx-border-color: #DBEAFE;" +
+                "-fx-padding: 10;" +
+                "-fx-font-family: 'Segoe UI';"
         );
-        tabel.setPrefHeight(500);
+        tabel.setPrefHeight(560);
     }
 
     private void buatLayout() {
-        root.setStyle("-fx-background-color: linear-gradient(to bottom right, #F8FAFC, #EAF2FF);");
+        root.setStyle(
+                "-fx-background-color: linear-gradient(to bottom right, #0F3D91, #2563EB, #93C5FD);" +
+                "-fx-font-family: 'Segoe UI';"
+        );
 
         Label lblHeader = new Label("MiniProject Aplikasi Manajemen Musik");
         lblHeader.setStyle(
-                "-fx-font-size: 28px;" +
+                "-fx-font-size: 30px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-text-fill: #1E3A5F;"
+                "-fx-text-fill: white;"
         );
 
-        Label lblSubHeader = new Label("Kelola data lagu dengan tampilan yang lebih rapi dan mudah digunakan");
+        Label lblSubHeader = new Label("Kelola data lagu dengan tampilan modern, rapi, dan nyaman digunakan");
         lblSubHeader.setStyle(
                 "-fx-font-size: 14px;" +
-                "-fx-text-fill: #5B6B7A;"
+                "-fx-text-fill: #DBEAFE;"
         );
 
-        VBox headerBox = new VBox(6, lblHeader, lblSubHeader);
-        headerBox.setPadding(new Insets(20, 25, 15, 25));
+        VBox headerBox = new VBox(8, lblHeader, lblSubHeader);
+        headerBox.setPadding(new Insets(24, 28, 18, 28));
 
-        VBox formCard = new VBox(10);
-        formCard.setPadding(new Insets(20));
-        formCard.setPrefWidth(330);
+        VBox formCard = new VBox(12);
+        formCard.setPadding(new Insets(22));
+        formCard.setPrefWidth(350);
         formCard.setStyle(
-                "-fx-background-color: white;" +
-                "-fx-background-radius: 18;" +
-                "-fx-border-radius: 18;" +
-                "-fx-border-color: #DCE3EA;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 4);"
+                "-fx-background-color: rgba(255,255,255,0.96);" +
+                "-fx-background-radius: 24;" +
+                "-fx-border-radius: 24;" +
+                "-fx-border-color: rgba(255,255,255,0.35);" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 18, 0, 0, 6);"
         );
 
         Label lblForm = new Label("Form Data Lagu");
         lblForm.setStyle(
-                "-fx-font-size: 22px;" +
+                "-fx-font-size: 23px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-text-fill: #1E3A5F;"
+                "-fx-text-fill: #12356E;"
         );
 
-        Label lblFormDesc = new Label("Silakan isi data lagu dengan lengkap");
+        Label lblFormDesc = new Label("Isi data lagu dengan lengkap untuk ditambahkan ke tabel");
         lblFormDesc.setStyle(
                 "-fx-font-size: 13px;" +
-                "-fx-text-fill: #6B7280;"
+                "-fx-text-fill: #64748B;"
         );
 
-        Button btnTambah = buatTombol("Tambah Lagu", "#2563EB");
+        Button btnTambah = buatTombol("Tambah Lagu", "#1D4ED8");
         Button btnHapus = buatTombol("Hapus Lagu", "#DC2626");
-        Button btnCari = buatTombol("Cari Lagu", "#059669");
+        Button btnCari = buatTombol("Cari Lagu", "#0F766E");
         Button btnTampilSemua = buatTombol("Tampilkan Semua", "#7C3AED");
 
         btnTambah.setOnAction(e -> tambahLagu());
@@ -146,7 +152,6 @@ public class MainView {
 
         HBox tombolAksi1 = new HBox(10, btnTambah, btnHapus);
         HBox tombolAksi2 = new HBox(10, btnCari, btnTampilSemua);
-
         tombolAksi1.setAlignment(Pos.CENTER);
         tombolAksi2.setAlignment(Pos.CENTER);
 
@@ -172,32 +177,32 @@ public class MainView {
         );
 
         VBox tabelCard = new VBox(12);
-        tabelCard.setPadding(new Insets(20));
+        tabelCard.setPadding(new Insets(22));
         tabelCard.setStyle(
-                "-fx-background-color: white;" +
-                "-fx-background-radius: 18;" +
-                "-fx-border-radius: 18;" +
-                "-fx-border-color: #DCE3EA;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 4);"
+                "-fx-background-color: rgba(255,255,255,0.96);" +
+                "-fx-background-radius: 24;" +
+                "-fx-border-radius: 24;" +
+                "-fx-border-color: rgba(255,255,255,0.35);" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 18, 0, 0, 6);"
         );
 
         Label lblTabel = new Label("Daftar Lagu");
         lblTabel.setStyle(
-                "-fx-font-size: 22px;" +
+                "-fx-font-size: 23px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-text-fill: #1E3A5F;"
+                "-fx-text-fill: #12356E;"
         );
 
-        Label lblTabelDesc = new Label("Data lagu yang sudah tersimpan akan tampil di bawah ini");
+        Label lblTabelDesc = new Label("Semua data lagu yang tersedia akan tampil pada tabel berikut");
         lblTabelDesc.setStyle(
                 "-fx-font-size: 13px;" +
-                "-fx-text-fill: #6B7280;"
+                "-fx-text-fill: #64748B;"
         );
 
         tabelCard.getChildren().addAll(lblTabel, lblTabelDesc, tabel);
 
-        HBox contentBox = new HBox(20, formCard, tabelCard);
-        contentBox.setPadding(new Insets(0, 25, 25, 25));
+        HBox contentBox = new HBox(22, formCard, tabelCard);
+        contentBox.setPadding(new Insets(0, 28, 28, 28));
 
         root.setTop(headerBox);
         root.setCenter(contentBox);
@@ -208,21 +213,21 @@ public class MainView {
         label.setStyle(
                 "-fx-font-size: 13px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-text-fill: #374151;"
+                "-fx-text-fill: #1E293B;"
         );
         return label;
     }
 
     private Button buatTombol(String text, String warna) {
         Button button = new Button(text);
-        button.setPrefWidth(135);
-        button.setPrefHeight(40);
+        button.setPrefWidth(145);
+        button.setPrefHeight(42);
         button.setStyle(
                 "-fx-background-color: " + warna + ";" +
                 "-fx-text-fill: white;" +
                 "-fx-font-size: 13px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-background-radius: 12;" +
+                "-fx-background-radius: 14;" +
                 "-fx-cursor: hand;"
         );
         return button;
@@ -242,7 +247,6 @@ public class MainView {
             }
 
             int durasi = Integer.parseInt(durasiText);
-
             Song lagu = new Song(id, judul, artis, genre, durasi);
             manager.tambahLagu(lagu);
 
@@ -282,6 +286,32 @@ public class MainView {
         manager.tambahLagu(new Song("1567", "Pelangi Di Matamu", "Jamrud", "Rock", 5));
         manager.tambahLagu(new Song("2234", "Hati-Hati di Jalan", "Tulus", "Pop", 4));
         manager.tambahLagu(new Song("3312", "Zona Nyaman", "Fourtwnty", "Indie", 4));
+        manager.tambahLagu(new Song("2076", "Kuning", "Rumahsakit", "Pop", 4));
+
+        manager.tambahLagu(new Song("1001", "Monokrom", "Tulus", "Pop", 4));
+        manager.tambahLagu(new Song("1002", "Interaksi", "Tulus", "Pop", 4));
+        manager.tambahLagu(new Song("1003", "Sial", "Mahalini", "Pop", 4));
+        manager.tambahLagu(new Song("1004", "Melukis Senja", "Budi Doremi", "Pop", 5));
+        manager.tambahLagu(new Song("1005", "Komang", "Raim Laode", "Pop", 4));
+        manager.tambahLagu(new Song("1006", "Tak Ingin Usai", "Keisya Levronka", "Pop", 4));
+        manager.tambahLagu(new Song("1007", "Mesin Waktu", "Budi Doremi", "Pop", 4));
+        manager.tambahLagu(new Song("1008", "Akad", "Payung Teduh", "Indie", 4));
+        manager.tambahLagu(new Song("1009", "Resah", "Payung Teduh", "Indie", 5));
+        manager.tambahLagu(new Song("1010", "Untuk Perempuan yang Sedang Dalam Pelukan", "Payung Teduh", "Indie", 5));
+        manager.tambahLagu(new Song("1011", "Amin Paling Serius", "Sal Priadi", "Indie", 4));
+        manager.tambahLagu(new Song("1012", "Kita ke Sana", "Hindia", "Indie", 4));
+        manager.tambahLagu(new Song("1013", "Evaluasi", "Hindia", "Indie", 5));
+        manager.tambahLagu(new Song("1014", "Secukupnya", "Hindia", "Indie", 5));
+        manager.tambahLagu(new Song("1015", "Rumah ke Rumah", "Hindia", "Indie", 4));
+        manager.tambahLagu(new Song("1016", "Bertaut", "Nadin Amizah", "Pop", 5));
+        manager.tambahLagu(new Song("1017", "Sorai", "Nadin Amizah", "Pop", 4));
+        manager.tambahLagu(new Song("1018", "Rumpang", "Nadin Amizah", "Pop", 5));
+        manager.tambahLagu(new Song("1019", "Celengan Rindu", "Fiersa Besari", "Pop", 4));
+        manager.tambahLagu(new Song("1020", "April", "Fiersa Besari", "Pop", 4));
+        manager.tambahLagu(new Song("1021", "Waktu yang Salah", "Fiersa Besari", "Pop", 5));
+        manager.tambahLagu(new Song("1022", "Cinta Luar Biasa", "Andmesh", "Pop", 4));
+        manager.tambahLagu(new Song("1023", "Sampai Jadi Debu", "Banda Neira", "Indie", 5));
+        manager.tambahLagu(new Song("1024", "Yang Patah Tumbuh, Yang Hilang Berganti", "Banda Neira", "Indie", 5));
     }
 
     private void tampilPesan(Alert.AlertType type, String judul, String pesan) {
