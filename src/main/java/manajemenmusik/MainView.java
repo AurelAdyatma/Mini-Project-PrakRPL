@@ -54,12 +54,12 @@ public class MainView {
         textField.setPrefHeight(40);
         textField.setStyle(
                 "-fx-background-color: #F8FBFF;" +
-                "-fx-background-radius: 12;" +
-                "-fx-border-radius: 12;" +
-                "-fx-border-color: #BFDBFE;" +
-                "-fx-padding: 10;" +
-                "-fx-font-size: 13px;" +
-                "-fx-font-family: 'Segoe UI';"
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-border-color: #BFDBFE;" +
+                        "-fx-padding: 10;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-font-family: 'Segoe UI';"
         );
         return textField;
     }
@@ -85,11 +85,11 @@ public class MainView {
         tabel.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         tabel.setStyle(
                 "-fx-background-color: white;" +
-                "-fx-background-radius: 16;" +
-                "-fx-border-radius: 16;" +
-                "-fx-border-color: #DBEAFE;" +
-                "-fx-padding: 10;" +
-                "-fx-font-family: 'Segoe UI';"
+                        "-fx-background-radius: 16;" +
+                        "-fx-border-radius: 16;" +
+                        "-fx-border-color: #DBEAFE;" +
+                        "-fx-padding: 10;" +
+                        "-fx-font-family: 'Segoe UI';"
         );
         tabel.setPrefHeight(560);
     }
@@ -97,20 +97,20 @@ public class MainView {
     private void buatLayout() {
         root.setStyle(
                 "-fx-background-color: linear-gradient(to bottom right, #0F3D91, #2563EB, #93C5FD);" +
-                "-fx-font-family: 'Segoe UI';"
+                        "-fx-font-family: 'Segoe UI';"
         );
 
         Label lblHeader = new Label("MiniProject Aplikasi Manajemen Musik");
         lblHeader.setStyle(
                 "-fx-font-size: 30px;" +
-                "-fx-font-weight: bold;" +
-                "-fx-text-fill: white;"
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: white;"
         );
 
         Label lblSubHeader = new Label("Kelola data lagu dengan tampilan modern, rapi, dan nyaman digunakan");
         lblSubHeader.setStyle(
                 "-fx-font-size: 14px;" +
-                "-fx-text-fill: #DBEAFE;"
+                        "-fx-text-fill: #DBEAFE;"
         );
 
         VBox headerBox = new VBox(8, lblHeader, lblSubHeader);
@@ -121,23 +121,23 @@ public class MainView {
         formCard.setPrefWidth(350);
         formCard.setStyle(
                 "-fx-background-color: rgba(255,255,255,0.96);" +
-                "-fx-background-radius: 24;" +
-                "-fx-border-radius: 24;" +
-                "-fx-border-color: rgba(255,255,255,0.35);" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 18, 0, 0, 6);"
+                        "-fx-background-radius: 24;" +
+                        "-fx-border-radius: 24;" +
+                        "-fx-border-color: rgba(255,255,255,0.35);" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 18, 0, 0, 6);"
         );
 
         Label lblForm = new Label("Form Data Lagu");
         lblForm.setStyle(
                 "-fx-font-size: 23px;" +
-                "-fx-font-weight: bold;" +
-                "-fx-text-fill: #12356E;"
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #12356E;"
         );
 
         Label lblFormDesc = new Label("Isi data lagu dengan lengkap untuk ditambahkan ke tabel");
         lblFormDesc.setStyle(
                 "-fx-font-size: 13px;" +
-                "-fx-text-fill: #64748B;"
+                        "-fx-text-fill: #64748B;"
         );
 
         Button btnTambah = buatTombol("Tambah Lagu", "#1D4ED8");
@@ -180,23 +180,23 @@ public class MainView {
         tabelCard.setPadding(new Insets(22));
         tabelCard.setStyle(
                 "-fx-background-color: rgba(255,255,255,0.96);" +
-                "-fx-background-radius: 24;" +
-                "-fx-border-radius: 24;" +
-                "-fx-border-color: rgba(255,255,255,0.35);" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 18, 0, 0, 6);"
+                        "-fx-background-radius: 24;" +
+                        "-fx-border-radius: 24;" +
+                        "-fx-border-color: rgba(255,255,255,0.35);" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 18, 0, 0, 6);"
         );
 
         Label lblTabel = new Label("Daftar Lagu");
         lblTabel.setStyle(
                 "-fx-font-size: 23px;" +
-                "-fx-font-weight: bold;" +
-                "-fx-text-fill: #12356E;"
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #12356E;"
         );
 
         Label lblTabelDesc = new Label("Semua data lagu yang tersedia akan tampil pada tabel berikut");
         lblTabelDesc.setStyle(
                 "-fx-font-size: 13px;" +
-                "-fx-text-fill: #64748B;"
+                        "-fx-text-fill: #64748B;"
         );
 
         tabelCard.getChildren().addAll(lblTabel, lblTabelDesc, tabel);
@@ -212,8 +212,8 @@ public class MainView {
         Label label = new Label(text);
         label.setStyle(
                 "-fx-font-size: 13px;" +
-                "-fx-font-weight: bold;" +
-                "-fx-text-fill: #1E293B;"
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #1E293B;"
         );
         return label;
     }
@@ -224,11 +224,11 @@ public class MainView {
         button.setPrefHeight(42);
         button.setStyle(
                 "-fx-background-color: " + warna + ";" +
-                "-fx-text-fill: white;" +
-                "-fx-font-size: 13px;" +
-                "-fx-font-weight: bold;" +
-                "-fx-background-radius: 14;" +
-                "-fx-cursor: hand;"
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 14;" +
+                        "-fx-cursor: hand;"
         );
         return button;
     }
@@ -283,11 +283,10 @@ public class MainView {
     }
 
     private void isiDataContoh() {
-        manager.tambahLagu(new Song("1567", "Pelangi Di Matamu", "Jamrud", "Rock", 5));
-        manager.tambahLagu(new Song("2234", "Hati-Hati di Jalan", "Tulus", "Pop", 4));
-        manager.tambahLagu(new Song("3312", "Zona Nyaman", "Fourtwnty", "Indie", 4));
-        manager.tambahLagu(new Song("2076", "Kuning", "Rumahsakit", "Pop", 4));
-
+        manager.tambahLagu(new Song("0097", "Pelangi Di Matamu", "Jamrud", "Rock", 5));
+        manager.tambahLagu(new Song("0098", "Hati-Hati di Jalan", "Tulus", "Pop", 4));
+        manager.tambahLagu(new Song("0099", "Zona Nyaman", "Fourtwnty", "Indie", 4));
+        manager.tambahLagu(new Song("1000", "Kuning", "Rumahsakit", "Pop", 4));
         manager.tambahLagu(new Song("1001", "Monokrom", "Tulus", "Pop", 4));
         manager.tambahLagu(new Song("1002", "Interaksi", "Tulus", "Pop", 4));
         manager.tambahLagu(new Song("1003", "Sial", "Mahalini", "Pop", 4));
