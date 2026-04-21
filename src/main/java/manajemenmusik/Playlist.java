@@ -1,30 +1,32 @@
 package manajemenmusik;
 
-import java.util.ArrayList;
-import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class Playlist {
-    private String namaPlaylist;
-    private List<Song> daftarLagu;
+    private String nama;
+    private final ObservableList<Song> lagu = FXCollections.observableArrayList();
 
-    public Playlist(String namaPlaylist) {
-        this.namaPlaylist = namaPlaylist;
-        this.daftarLagu = new ArrayList<>();
+    public Playlist(String nama) {
+        this.nama = nama;
     }
 
-    public String getNamaPlaylist() {
-        return namaPlaylist;
+    public String getNama()        { return nama; }
+    public void setNama(String v)  { this.nama = v; }
+    public ObservableList<Song> getLagu() { return lagu; }
+
+    public boolean tambahLagu(Song s) {
+        if (lagu.contains(s)) return false;
+        lagu.add(s);
+        return true;
     }
 
-    public List<Song> getDaftarLagu() {
-        return daftarLagu;
+    public void hapusLagu(Song s) {
+        lagu.remove(s);
     }
 
-    public void tambahLagu(Song lagu) {
-        daftarLagu.add(lagu);
-    }
-
-    public void hapusLagu(Song lagu) {
-        daftarLagu.remove(lagu);
+    @Override
+    public String toString() {
+        return nama + "  (" + lagu.size() + " lagu)";
     }
 }
