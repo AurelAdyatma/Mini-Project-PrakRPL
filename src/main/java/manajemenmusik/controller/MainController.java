@@ -84,6 +84,7 @@ public class MainController {
     @FXML private TableColumn<Song, Integer> colNoPl, colDurasiPl, colTahunPl;
     @FXML private TableColumn<Song, String> colIdPl, colJudulPl, colArtisPl, colGenrePl;
     @FXML private TableColumn<Song, Boolean> colFavPl;
+    @FXML private ComboBox<Song> cbLaguTersedia;
 
     // ---- Statistik ----
     @FXML private Label lblStatTotal, lblStatArtis, lblStatGenre, lblStatFavorit;
@@ -111,6 +112,7 @@ public class MainController {
         // Bind data
         tabelPustaka.setItems(manager.getDaftarLagu());
         listViewPlaylist.setItems(manager.getDaftarPlaylist());
+        cbLaguTersedia.setItems(manager.getDaftarLagu());
 
         // Listeners
         tfSearch.textProperty().addListener((obs, o, n) -> applyFilters());
@@ -381,9 +383,9 @@ public class MainController {
     @FXML
     private void onTambahKePlaylist() {
         Playlist pl = listViewPlaylist.getSelectionModel().getSelectedItem();
-        Song lagu = tabelPustaka.getSelectionModel().getSelectedItem();
+        Song lagu = cbLaguTersedia.getSelectionModel().getSelectedItem();
         if (pl == null) { alert("Peringatan", "Pilih playlist terlebih dahulu."); return; }
-        if (lagu == null) { alert("Peringatan", "Pilih lagu dari tabel Perpustakaan."); return; }
+        if (lagu == null) { alert("Peringatan", "Pilih lagu dari dropdown terlebih dahulu."); return; }
         if (!pl.tambahLagu(lagu)) { alert("Info", "Lagu sudah ada di playlist ini."); return; }
         manager.simpanPlaylist();
         tabelPlaylistSong.setItems(pl.getLagu());

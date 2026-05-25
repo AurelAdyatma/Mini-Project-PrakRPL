@@ -5,106 +5,230 @@ import javafx.collections.ObservableList;
 import manajemenmusik.model.Song;
 
 import java.io.*;
+import java.sql.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
-/**
- * SongDAOImpl — implementasi konkret dari SongDAO (DAO Pattern + Polymorphism).
- * Mengelola penyimpanan data lagu dalam ObservableList dan file CSV.
- */
 public class SongDAOImpl implements SongDAO {
 
-    private final ObservableList<Song> daftarLagu = FXCollections.observableArrayList();
-
-    // ---- CRUD ----
+    public SongDAOImpl() {
+        DatabaseConnection.initializeDatabase();
+    }
 
     @Override
     public boolean tambah(Song song) {
-        for (Song s : daftarLagu) {
-            if (s.getId().equalsIgnoreCase(song.getId())) return false;
+        String sql = "INSERT INTO songs(id, judul, artis, genre, durasi, tahun, favorit) VALUES(?,?,?,?,?,?,?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, song.getId());
+            pstmt.setString(2, song.getJudul());
+            pstmt.setString(3, song.getArtis());
+            pstmt.setString(4, song.getGenre());
+            pstmt.setInt(5, song.getDurasi());
+            pstmt.setInt(6, song.getTahun());
+            pstmt.setInt(7, song.isFavorit() ? 1 : 0);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Gagal tambah lagu: " + e.getMessage());
+            return false;
         }
-        daftarLagu.add(song);
-        return true;
     }
 
     @Override
     public void hapus(Song song) {
-        daftarLagu.remove(song);
+        String sql = "DELETE FROM songs WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, song.getId());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Gagal hapus lagu: " + e.getMessage());
+        }
     }
 
     @Override
-    public void edit(Song orig, String id, String judul, String artis,
-                     String genre, int durasi, int tahun) {
-        orig.setId(id);
-        orig.setJudul(judul);
-        orig.setArtis(artis);
-        orig.setGenre(genre);
-        orig.setDurasi(durasi);
-        orig.setTahun(tahun);
-    }
+    public void edit(Song orig, String id, String judul, String artis, String genre, int durasi, int tahun) {
+        String sql = "UPDATE songs SET id = ?, judul = ?, artis = ?, genre = ?, durasi = ?, tahun = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, id);
+            pstmt.setString(2, judul);
+            pstmt.setString(3, artis);
+            pstmt.setString(4, genre);
+            pstmt.setInt(5, durasi);
+            pstmt.setInt(6, tahun);
+            pstmt.setString(7, orig.getId());
+            pstmt.executeUpdate();
 
-    // ---- Query ----
+            // Update di object-nya (jika UI masih terikat dengannya)
+            orig.setId(id);
+            orig.setJudul(judul);
+            orig.setArtis(artis);
+            orig.setGenre(genre);
+            orig.setDurasi(durasi);
+            orig.setTahun(tahun);
+        } catch (SQLException e) {
+            System.err.println("Gagal edit lagu: " + e.getMessage());
+        }
+    }
 
     @Override
     public ObservableList<Song> getAll() {
-        return daftarLagu;
+        ObservableList<Song> list = FXCollections.observableArrayList();
+        String sql = "SELECT * FROM songs";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(mapResultSetToSong(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("Gagal getAll: " + e.getMessage());
+        }
+        return list;
     }
 
     @Override
     public ObservableList<Song> getFavorit() {
-        ObservableList<Song> hasil = FXCollections.observableArrayList();
-        daftarLagu.stream().filter(Song::isFavorit).forEach(hasil::add);
-        return hasil;
+        ObservableList<Song> list = FXCollections.observableArrayList();
+        String sql = "SELECT * FROM songs WHERE favorit = 1";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(mapResultSetToSong(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("Gagal getFavorit: " + e.getMessage());
+        }
+        return list;
     }
 
     @Override
     public ObservableList<Song> filter(String keyword, String genre) {
+        ObservableList<Song> list = FXCollections.observableArrayList();
         String kw = (keyword == null) ? "" : keyword.toLowerCase();
         boolean filterGenre = genre != null && !genre.equals("Semua Genre");
-        ObservableList<Song> hasil = FXCollections.observableArrayList();
-        for (Song s : daftarLagu) {
-            boolean matchGenre = !filterGenre || s.getGenre().equalsIgnoreCase(genre);
-            boolean matchKw = kw.isBlank()
-                    || s.getId().toLowerCase().contains(kw)
-                    || s.getJudul().toLowerCase().contains(kw)
-                    || s.getArtis().toLowerCase().contains(kw)
-                    || s.getGenre().toLowerCase().contains(kw);
-            if (matchGenre && matchKw) hasil.add(s);
+        
+        String sql = "SELECT * FROM songs WHERE 1=1";
+        if (filterGenre) {
+            sql += " AND genre = ?";
         }
-        return hasil;
+        if (!kw.isBlank()) {
+            sql += " AND (LOWER(id) LIKE ? OR LOWER(judul) LIKE ? OR LOWER(artis) LIKE ? OR LOWER(genre) LIKE ?)";
+        }
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            int paramIndex = 1;
+            if (filterGenre) {
+                pstmt.setString(paramIndex++, genre);
+            }
+            if (!kw.isBlank()) {
+                String likeKw = "%" + kw + "%";
+                pstmt.setString(paramIndex++, likeKw);
+                pstmt.setString(paramIndex++, likeKw);
+                pstmt.setString(paramIndex++, likeKw);
+                pstmt.setString(paramIndex++, likeKw);
+            }
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToSong(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Gagal filter: " + e.getMessage());
+        }
+        return list;
     }
-
-    // ---- Statistik ----
 
     @Override
     public Set<String> getGenreUnik() {
-        return daftarLagu.stream().map(Song::getGenre)
-                .collect(Collectors.toCollection(TreeSet::new));
+        Set<String> set = new TreeSet<>();
+        String sql = "SELECT DISTINCT genre FROM songs";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                set.add(rs.getString("genre"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Gagal getGenreUnik: " + e.getMessage());
+        }
+        return set;
     }
 
     @Override
     public Set<String> getArtisUnik() {
-        return daftarLagu.stream().map(Song::getArtis)
-                .collect(Collectors.toCollection(TreeSet::new));
+        Set<String> set = new TreeSet<>();
+        String sql = "SELECT DISTINCT artis FROM songs";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                set.add(rs.getString("artis"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Gagal getArtisUnik: " + e.getMessage());
+        }
+        return set;
     }
 
     @Override
     public Map<String, Long> getStatistikGenre() {
-        return daftarLagu.stream()
-                .collect(Collectors.groupingBy(Song::getGenre, Collectors.counting()))
-                .entrySet().stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey, Map.Entry::getValue,
-                        (a, b) -> a, LinkedHashMap::new));
+        Map<String, Long> map = new LinkedHashMap<>();
+        String sql = "SELECT genre, COUNT(*) as jumlah FROM songs GROUP BY genre ORDER BY jumlah DESC";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                map.put(rs.getString("genre"), rs.getLong("jumlah"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Gagal getStatistikGenre: " + e.getMessage());
+        }
+        return map;
     }
 
-    // ---- CSV Import / Export ----
+    private Song mapResultSetToSong(ResultSet rs) throws SQLException {
+        Song s = new Song(
+            rs.getString("id"),
+            rs.getString("judul"),
+            rs.getString("artis"),
+            rs.getString("genre"),
+            rs.getInt("durasi"),
+            rs.getInt("tahun")
+        );
+        s.setFavorit(rs.getInt("favorit") == 1);
+        
+        // Listeners to update DB if changed from UI (like favorite toggle)
+        s.favoritProperty().addListener((obs, oldV, newV) -> {
+            updateFavoritStatus(s.getId(), newV);
+        });
+        
+        return s;
+    }
+    
+    private void updateFavoritStatus(String id, boolean favorit) {
+        String sql = "UPDATE songs SET favorit = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, favorit ? 1 : 0);
+            pstmt.setString(2, id);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Gagal update favorit: " + e.getMessage());
+        }
+    }
+
+    // ---- CSV Import / Export (Jembatan Data) ----
 
     @Override
     public void exportCSV(File file) throws IOException {
-        try (PrintWriter pw = new PrintWriter(
-                new OutputStreamWriter(new FileOutputStream(file), "UTF-8"))) {
+        ObservableList<Song> daftarLagu = getAll();
+        try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"))) {
             pw.println("ID,Judul,Artis,Genre,Durasi,Tahun,Favorit");
             daftarLagu.forEach(s -> pw.println(s.toCSV()));
         }
@@ -113,16 +237,14 @@ public class SongDAOImpl implements SongDAO {
     @Override
     public int importCSV(File file) throws IOException {
         int count = 0;
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
             String line = br.readLine(); // skip header
             while ((line = br.readLine()) != null) {
                 if (line.isBlank()) continue;
                 String[] p = parseCsvLine(line);
                 if (p.length >= 6) {
                     try {
-                        Song s = new Song(p[0], p[1], p[2], p[3],
-                                Integer.parseInt(p[4]), Integer.parseInt(p[5]));
+                        Song s = new Song(p[0], p[1], p[2], p[3], Integer.parseInt(p[4]), Integer.parseInt(p[5]));
                         if (p.length >= 7) s.setFavorit(Boolean.parseBoolean(p[6]));
                         if (tambah(s)) count++;
                     } catch (NumberFormatException ignored) {}

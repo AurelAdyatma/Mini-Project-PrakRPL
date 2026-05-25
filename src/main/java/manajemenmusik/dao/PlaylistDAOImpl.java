@@ -5,14 +5,17 @@ import javafx.collections.ObservableList;
 import manajemenmusik.model.Playlist;
 import manajemenmusik.model.Song;
 
-import java.io.*;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class PlaylistDAOImpl implements PlaylistDAO {
 
     private final ObservableList<Playlist> daftarPlaylist = FXCollections.observableArrayList();
-    private static final String FILE_NAME = "playlist_database.csv";
+
+    public PlaylistDAOImpl() {
+        DatabaseConnection.initializeDatabase();
+    }
 
     @Override
     public ObservableList<Playlist> getAllPlaylists() {
@@ -41,44 +44,64 @@ public class PlaylistDAOImpl implements PlaylistDAO {
 
     @Override
     public void simpanData() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_NAME))) {
-            for (Playlist pl : daftarPlaylist) {
-                writer.print(pl.getNama() + ";");
-                boolean first = true;
-                for (Song song : pl.getLagu()) {
-                    if (!first) writer.print(",");
-                    writer.print(song.getId());
-                    first = false;
-                }
-                writer.println();
+        // Menyimpan status in-memory daftarPlaylist ke SQLite
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false); // Transaksi
+            
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("DELETE FROM playlist_songs");
+                stmt.executeUpdate("DELETE FROM playlists");
             }
-        } catch (IOException e) {
-            System.err.println("Gagal menyimpan data playlist: " + e.getMessage());
+            
+            String insertPlaylist = "INSERT INTO playlists(nama) VALUES(?)";
+            String insertSong = "INSERT INTO playlist_songs(playlist_nama, song_id) VALUES(?, ?)";
+            
+            try (PreparedStatement psPlaylist = conn.prepareStatement(insertPlaylist);
+                 PreparedStatement psSong = conn.prepareStatement(insertSong)) {
+                
+                for (Playlist pl : daftarPlaylist) {
+                    psPlaylist.setString(1, pl.getNama());
+                    psPlaylist.executeUpdate();
+                    
+                    for (Song s : pl.getLagu()) {
+                        psSong.setString(1, pl.getNama());
+                        psSong.setString(2, s.getId());
+                        psSong.executeUpdate();
+                    }
+                }
+            }
+            conn.commit();
+        } catch (SQLException e) {
+            System.err.println("Gagal menyimpan data playlist ke DB: " + e.getMessage());
         }
     }
 
     @Override
     public void muatData(ObservableList<Song> semuaLagu) {
         daftarPlaylist.clear();
-        File file = new File(FILE_NAME);
-        if (!file.exists()) return;
-
+        
         Map<String, Song> songMap = new HashMap<>();
         for (Song s : semuaLagu) {
             songMap.put(s.getId(), s);
         }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String baris;
-            while ((baris = reader.readLine()) != null) {
-                if (baris.trim().isEmpty()) continue;
-                String[] parts = baris.split(";", -1);
-                if (parts.length >= 1) {
-                    Playlist pl = new Playlist(parts[0]);
-                    if (parts.length > 1 && !parts[1].trim().isEmpty()) {
-                        String[] songIds = parts[1].split(",");
-                        for (String id : songIds) {
-                            Song s = songMap.get(id.trim());
+        String sqlPlaylists = "SELECT nama FROM playlists";
+        String sqlSongs = "SELECT song_id FROM playlist_songs WHERE playlist_nama = ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rsPlaylists = stmt.executeQuery(sqlPlaylists)) {
+            
+            try (PreparedStatement psSongs = conn.prepareStatement(sqlSongs)) {
+                while (rsPlaylists.next()) {
+                    String nama = rsPlaylists.getString("nama");
+                    Playlist pl = new Playlist(nama);
+                    
+                    psSongs.setString(1, nama);
+                    try (ResultSet rsSongs = psSongs.executeQuery()) {
+                        while (rsSongs.next()) {
+                            String songId = rsSongs.getString("song_id");
+                            Song s = songMap.get(songId);
                             if (s != null) {
                                 pl.tambahLagu(s);
                             }
@@ -87,8 +110,8 @@ public class PlaylistDAOImpl implements PlaylistDAO {
                     daftarPlaylist.add(pl);
                 }
             }
-        } catch (IOException e) {
-            System.err.println("Gagal memuat data playlist: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Gagal memuat data playlist dari DB: " + e.getMessage());
         }
     }
 }
