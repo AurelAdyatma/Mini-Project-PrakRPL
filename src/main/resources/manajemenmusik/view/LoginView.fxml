@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="manajemenmusik.controller.LoginController"
+      alignment="CENTER"
+      style="-fx-background-color: #F3F4F6; -fx-font-family: 'Segoe UI', Arial, sans-serif;">
+
+    <!-- Wrapper untuk centering card -->
+    <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
+
+        <!-- Login Card -->
+        <VBox fx:id="loginCard" spacing="18" alignment="CENTER_LEFT" maxWidth="420"
+              style="-fx-background-color: #FFFFFF; -fx-background-radius: 14;
+                     -fx-border-radius: 14; -fx-border-color: #E5E7EB; -fx-border-width: 1;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 30, 0, 0, 10);">
+            <padding>
+                <Insets top="44" right="44" bottom="44" left="44"/>
+            </padding>
+
+            <!-- Logo -->
+            <Label text="MusikApp" style="-fx-font-size: 32px; -fx-font-weight: bold;"/>
+
+            <!-- Brand -->
+            <Label text="Music Manager"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #10B981;"/>
+
+            <!-- Title -->
+            <Label text="Selamat Datang Kembali"
+                   style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+
+            <!-- Subtitle -->
+            <Label text="Masuk untuk mengelola koleksi musikmu"
+                   style="-fx-font-size: 14px; -fx-text-fill: #4B5563;"/>
+
+            <!-- Spacer -->
+            <Region prefHeight="8"/>
+
+            <!-- Username -->
+            <Label text="USERNAME"
+                   style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #4B5563;
+                          -fx-padding: 2 0 0 0;"/>
+            <TextField fx:id="tfUsername" promptText="Masukkan username..."
+                       prefHeight="46" maxWidth="1.7976931348623157E308"
+                       onAction="#onUsernameEnter"
+                       style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;
+                              -fx-border-color: #D1D5DB; -fx-border-radius: 6;
+                              -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;
+                              -fx-padding: 9 12; -fx-font-size: 13px;"/>
+
+            <!-- Password -->
+            <Label text="PASSWORD"
+                   style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #4B5563;
+                          -fx-padding: 2 0 0 0;"/>
+            <PasswordField fx:id="pfPassword" promptText="Masukkan password..."
+                           prefHeight="46" maxWidth="1.7976931348623157E308"
+                           onAction="#onLogin"
+                           style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;
+                                  -fx-border-color: #D1D5DB; -fx-border-radius: 6;
+                                  -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;
+                                  -fx-padding: 9 12; -fx-font-size: 13px;"/>
+
+            <!-- Login Button -->
+            <Button fx:id="btnLogin" text="Masuk" onAction="#onLogin"
+                    maxWidth="1.7976931348623157E308" prefHeight="50"
+                    style="-fx-background-color: #10B981; -fx-background-radius: 25;
+                           -fx-text-fill: #FFFFFF; -fx-font-size: 15px; -fx-font-weight: bold;
+                           -fx-cursor: hand;
+                           -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.15), 12, 0, 0, 4);"/>
+
+            <!-- Hint -->
+            <Label text="Login default: admin / 12345"
+                   style="-fx-font-size: 11px; -fx-text-fill: #9CA3AF; -fx-font-style: italic;"/>
+        </VBox>
+    </VBox>
+</VBox>
