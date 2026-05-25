@@ -1,9 +1,22 @@
 package manajemenmusik;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+import manajemenmusik.controller.LoginController;
+import manajemenmusik.controller.MainController;
 
+import java.io.IOException;
+import java.util.Optional;
+
+/**
+ * Main application entry point.
+ * Menggunakan FXMLLoader untuk load UI (MVC Pattern).
+ */
 public class Main extends Application {
 
     @Override
@@ -12,54 +25,61 @@ public class Main extends Application {
     }
 
     private void tampilkanLogin(Stage stage) {
-        LoginView loginView = new LoginView(() -> tampilkanDashboard(stage));
-        Scene scene = new Scene(loginView.getView(), 600, 520);
-        muatCSS(scene);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/manajemenmusik/view/LoginView.fxml"));
+            Parent root = loader.load();
+            
+            // Set callback on controller
+            LoginController controller = loader.getController();
+            controller.setOnLoginSuccess(() -> tampilkanDashboard(stage));
 
-        stage.setTitle("MusikApp - Login");
-        stage.setResizable(false);
-        stage.setScene(scene);
-        stage.show();
+            Scene scene = new Scene(root, 600, 520);
+            stage.setTitle("MusikApp - Login");
+            stage.setResizable(false);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void tampilkanDashboard(Stage stage) {
-        MainView mainView = new MainView(() -> tampilkanLogin(stage));
-        Scene scene = new Scene(mainView.getView(), 1350, 800);
-        muatCSS(scene);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/manajemenmusik/view/MainView.fxml"));
+            Parent root = loader.load();
 
-        // -- New: Load data, register shortcuts --
-        mainView.loadDataOtomatis();
-        mainView.registerShortcuts(scene);
-
-        // -- New: Close confirmation & Auto-save --
-        stage.setOnCloseRequest(e -> {
-            javafx.scene.control.Alert a = new javafx.scene.control.Alert(
-                    javafx.scene.control.Alert.AlertType.CONFIRMATION,
-                    "Simpan data dan keluar?",
-                    javafx.scene.control.ButtonType.YES, javafx.scene.control.ButtonType.NO);
-            a.setTitle("Konfirmasi Keluar");
-            a.setHeaderText(null);
+            MainController controller = loader.getController();
+            controller.setOnLogout(() -> tampilkanLogin(stage));
             
-            java.util.Optional<javafx.scene.control.ButtonType> res = a.showAndWait();
-            if (res.isPresent() && res.get() == javafx.scene.control.ButtonType.YES) {
-                mainView.saveDataOtomatis();
-            } else {
-                e.consume(); // Cancel close
-            }
-        });
+            Scene scene = new Scene(root, 1350, 800);
+            
+            // Auto load dan register shortcut
+            controller.loadDataOtomatis();
+            controller.registerShortcuts(scene);
 
-        stage.setTitle("MusikApp - Manajemen Musik");
-        stage.setResizable(true);
-        stage.setMinWidth(1100);
-        stage.setMinHeight(650);
-        stage.setScene(scene);
-        stage.setMaximized(true); // Membuka jendela dalam kondisi maksimal (full screen)
-        stage.show();
-    }
+            // Close confirmation
+            stage.setOnCloseRequest(e -> {
+                Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Simpan data dan keluar?", ButtonType.YES, ButtonType.NO);
+                a.setTitle("Konfirmasi Keluar");
+                a.setHeaderText(null);
+                Optional<ButtonType> res = a.showAndWait();
+                if (res.isPresent() && res.get() == ButtonType.YES) {
+                    controller.saveDataOtomatis();
+                } else {
+                    e.consume();
+                }
+            });
 
-    private void muatCSS(Scene scene) {
-        java.net.URL css = getClass().getResource("/manajemenmusik/style.css");
-        if (css != null) scene.getStylesheets().add(css.toExternalForm());
+            stage.setTitle("MusikApp - Manajemen Musik");
+            stage.setResizable(true);
+            stage.setMinWidth(1100);
+            stage.setMinHeight(650);
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
