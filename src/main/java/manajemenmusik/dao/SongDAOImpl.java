@@ -47,6 +47,17 @@ public class SongDAOImpl implements SongDAO {
     }
 
     @Override
+    public void hapusSemua() {
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DELETE FROM playlist_songs");
+            stmt.executeUpdate("DELETE FROM songs");
+        } catch (SQLException e) {
+            System.err.println("Gagal hapus semua lagu: " + e.getMessage());
+        }
+    }
+
+    @Override
     public void edit(Song orig, String id, String judul, String artis, String genre, int durasi, int tahun) {
         String sql = "UPDATE songs SET id = ?, judul = ?, artis = ?, genre = ?, durasi = ?, tahun = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();

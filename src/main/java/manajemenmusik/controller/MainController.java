@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import manajemenmusik.model.Playlist;
 import manajemenmusik.model.Song;
+import manajemenmusik.model.User;
 import manajemenmusik.service.MusicManager;
 
 import java.io.File;
@@ -59,6 +60,7 @@ public class MainController {
 
     // ---- Header ----
     @FXML private TextField tfSearch;
+    @FXML private Label lblUsername;
 
     // ---- Perpustakaan ----
     @FXML private ComboBox<String> cbGenre;
@@ -80,6 +82,7 @@ public class MainController {
     // ---- Playlist ----
     @FXML private ListView<Playlist> listViewPlaylist;
     @FXML private TextField tfPlaylistNama;
+    @FXML private CheckBox cbPublicPlaylist;
     @FXML private TableView<Song> tabelPlaylistSong;
     @FXML private TableColumn<Song, Integer> colNoPl, colDurasiPl, colTahunPl;
     @FXML private TableColumn<Song, String> colIdPl, colJudulPl, colArtisPl, colGenrePl;
@@ -139,6 +142,55 @@ public class MainController {
         btnHapus.setDisable(true);
 
         refreshGenreFilter();
+        setupPlaylistCellFactory();
+    }
+
+    /**
+     * Custom cell factory untuk ListView playlist.
+     * Menampilkan label [Public], [Milik Anda], atau [Lainnya] di depan nama playlist.
+     */
+    private void setupPlaylistCellFactory() {
+        listViewPlaylist.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Playlist pl, boolean empty) {
+                super.updateItem(pl, empty);
+                if (empty || pl == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+
+                User currentUser = manager.getCurrentUser();
+                int currentUserId = currentUser != null ? currentUser.getId() : -1;
+                boolean isOwner = pl.getUserId() == currentUserId;
+
+                HBox row = new HBox(6);
+                row.setAlignment(Pos.CENTER_LEFT);
+
+                // Label visibilitas
+                Label badge = new Label();
+                badge.setPadding(new Insets(1, 6, 1, 6));
+                badge.setStyle("-fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4;");
+
+                if (isOwner && pl.isPublic()) {
+                    badge.setText("Public");
+                    badge.setStyle(badge.getStyle() + "-fx-background-color: #DEF7EC; -fx-text-fill: #03543F;");
+                } else if (isOwner) {
+                    badge.setText("Milik Anda");
+                    badge.setStyle(badge.getStyle() + "-fx-background-color: #E1EFFE; -fx-text-fill: #1E40AF;");
+                } else {
+                    badge.setText("Lainnya");
+                    badge.setStyle(badge.getStyle() + "-fx-background-color: #F3E8FF; -fx-text-fill: #6B21A8;");
+                }
+
+                Label namaLabel = new Label(pl.getNama() + "  (" + pl.getLagu().size() + " lagu)");
+                namaLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #111827;");
+
+                row.getChildren().addAll(badge, namaLabel);
+                setGraphic(row);
+                setText(null);
+            }
+        });
     }
 
     private void setupTable(TableView<Song> tabel,
@@ -246,8 +298,8 @@ public class MainController {
 
     @FXML
     private void onLogout() {
-        if (confirm("Logout", "Apakah Anda yakin ingin logout?\nData akan disimpan otomatis.")) {
-            saveDataOtomatis();
+        if (confirm("Logout", "Apakah Anda yakin ingin logout?")) {
+            manager.logout();
             if (onLogout != null) onLogout.run();
         }
     }
@@ -321,6 +373,29 @@ public class MainController {
     }
 
     @FXML
+    private void onHapusSemuaLagu() {
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION,
+                "Apakah anda yakin ingin menghapus semua lagu?",
+                ButtonType.YES, ButtonType.NO);
+        a.setTitle("Hapus Semua Lagu");
+        a.setHeaderText(null);
+        Optional<ButtonType> res = a.showAndWait();
+        if (res.isPresent() && res.get() == ButtonType.YES) {
+            manager.hapusSemuaLagu();
+            // Reload semua data
+            tabelPustaka.setItems(manager.getDaftarLagu());
+            cbLaguTersedia.setItems(manager.getDaftarLagu());
+            manager.muatPlaylist();
+            listViewPlaylist.setItems(manager.getDaftarPlaylist());
+            tabelPlaylistSong.setItems(FXCollections.observableArrayList());
+            onBersihkanForm();
+            refreshGenreFilter();
+            refreshFavorit();
+            alert("Berhasil", "🗑️  Semua lagu berhasil dihapus dari perpustakaan.");
+        }
+    }
+
+    @FXML
     private void onBersihkanForm() {
         tfId.clear(); tfJudul.clear(); tfArtis.clear();
         tfGenre.clear(); tfDurasi.clear(); tfTahun.clear();
@@ -364,8 +439,15 @@ public class MainController {
     private void onBuatPlaylist() {
         String nama = tfPlaylistNama.getText().trim();
         if (nama.isEmpty()) { alert("Peringatan", "Masukkan nama playlist."); return; }
-        manager.tambahPlaylist(new Playlist(nama));
+
+        User currentUser = manager.getCurrentUser();
+        if (currentUser == null) { alert("Error", "Anda belum login."); return; }
+
+        boolean isPublic = cbPublicPlaylist != null && cbPublicPlaylist.isSelected();
+        Playlist pl = new Playlist(nama, currentUser.getId(), isPublic);
+        manager.tambahPlaylist(pl);
         tfPlaylistNama.clear();
+        if (cbPublicPlaylist != null) cbPublicPlaylist.setSelected(false);
         listViewPlaylist.refresh();
     }
 
@@ -373,6 +455,14 @@ public class MainController {
     private void onHapusPlaylist() {
         Playlist pl = listViewPlaylist.getSelectionModel().getSelectedItem();
         if (pl == null) { alert("Peringatan", "Pilih playlist yang ingin dihapus."); return; }
+
+        // Hanya pemilik yang bisa menghapus
+        User currentUser = manager.getCurrentUser();
+        if (currentUser == null || pl.getUserId() != currentUser.getId()) {
+            alert("Akses Ditolak", "Anda hanya bisa menghapus playlist milik Anda sendiri.");
+            return;
+        }
+
         if (confirm("Hapus Playlist", "Hapus playlist \"" + pl.getNama() + "\"?")) {
             manager.hapusPlaylist(pl);
             tabelPlaylistSong.setItems(FXCollections.observableArrayList());
@@ -381,11 +471,36 @@ public class MainController {
     }
 
     @FXML
+    private void onTogglePublicPlaylist() {
+        Playlist pl = listViewPlaylist.getSelectionModel().getSelectedItem();
+        if (pl == null) { alert("Peringatan", "Pilih playlist terlebih dahulu."); return; }
+
+        User currentUser = manager.getCurrentUser();
+        if (currentUser == null || pl.getUserId() != currentUser.getId()) {
+            alert("Akses Ditolak", "Anda hanya bisa mengubah visibilitas playlist milik Anda sendiri.");
+            return;
+        }
+
+        manager.togglePublicPlaylist(pl);
+        listViewPlaylist.refresh();
+        String status = pl.isPublic() ? "Public" : "Private";
+        alert("Berhasil", "Playlist \"" + pl.getNama() + "\" sekarang berstatus " + status + ".");
+    }
+
+    @FXML
     private void onTambahKePlaylist() {
         Playlist pl = listViewPlaylist.getSelectionModel().getSelectedItem();
         Song lagu = cbLaguTersedia.getSelectionModel().getSelectedItem();
         if (pl == null) { alert("Peringatan", "Pilih playlist terlebih dahulu."); return; }
         if (lagu == null) { alert("Peringatan", "Pilih lagu dari dropdown terlebih dahulu."); return; }
+
+        // Hanya pemilik yang bisa menambahkan lagu
+        User currentUser = manager.getCurrentUser();
+        if (currentUser == null || pl.getUserId() != currentUser.getId()) {
+            alert("Akses Ditolak", "Anda hanya bisa menambah lagu ke playlist milik Anda sendiri.");
+            return;
+        }
+
         if (!pl.tambahLagu(lagu)) { alert("Info", "Lagu sudah ada di playlist ini."); return; }
         manager.simpanPlaylist();
         tabelPlaylistSong.setItems(pl.getLagu());
@@ -397,6 +512,13 @@ public class MainController {
         Playlist pl = listViewPlaylist.getSelectionModel().getSelectedItem();
         Song lagu = tabelPlaylistSong.getSelectionModel().getSelectedItem();
         if (pl == null || lagu == null) { alert("Peringatan", "Pilih playlist dan lagu."); return; }
+
+        User currentUser = manager.getCurrentUser();
+        if (currentUser == null || pl.getUserId() != currentUser.getId()) {
+            alert("Akses Ditolak", "Anda hanya bisa menghapus lagu dari playlist milik Anda sendiri.");
+            return;
+        }
+
         pl.hapusLagu(lagu);
         manager.simpanPlaylist();
         listViewPlaylist.refresh();
@@ -472,6 +594,8 @@ public class MainController {
         if (file != null) {
             try {
                 int count = manager.importCSV(file);
+                tabelPustaka.setItems(manager.getDaftarLagu());
+                cbLaguTersedia.setItems(manager.getDaftarLagu());
                 refreshGenreFilter();
                 applyFilters();
                 alert("Import Berhasil", "📥  " + count + " lagu berhasil diimpor dari:\n" + file.getAbsolutePath());
@@ -500,29 +624,42 @@ public class MainController {
     }
 
     public void loadDataOtomatis() {
-        File f = new File(DB_FILE);
-        if (f.exists()) {
-            try {
-                int count = manager.importCSV(f);
-                refreshGenreFilter();
-                applyFilters();
-                System.out.println("Auto-load berhasil: " + count + " lagu dimuat.");
-            } catch (IOException e) {
-                System.err.println("Gagal auto-load: " + e.getMessage());
+        // Load lagu dari SQLite
+        tabelPustaka.setItems(manager.getDaftarLagu());
+        cbLaguTersedia.setItems(manager.getDaftarLagu());
+
+        // Jika DB kosong, import dari CSV awal
+        if (manager.getDaftarLagu().isEmpty()) {
+            File f = new File(DB_FILE);
+            if (f.exists()) {
+                try {
+                    int count = manager.importCSV(f);
+                    tabelPustaka.setItems(manager.getDaftarLagu());
+                    cbLaguTersedia.setItems(manager.getDaftarLagu());
+                    System.out.println("Auto-import dari CSV: " + count + " lagu dimuat.");
+                } catch (IOException e) {
+                    System.err.println("Gagal auto-import: " + e.getMessage());
+                }
             }
-        } else {
-            // Load contoh data jika file belum ada
-            isiDataContoh();
+        }
+
+        // Load playlist (user-scoped)
+        manager.muatPlaylist();
+        listViewPlaylist.setItems(manager.getDaftarPlaylist());
+
+        refreshGenreFilter();
+        applyFilters();
+
+        // Set label username di header
+        User user = manager.getCurrentUser();
+        if (user != null && lblUsername != null) {
+            lblUsername.setText(user.getUsername());
         }
     }
 
     public void saveDataOtomatis() {
-        try {
-            manager.exportCSV(new File(DB_FILE));
-            System.out.println("Auto-save berhasil.");
-        } catch (IOException e) {
-            System.err.println("Gagal auto-save: " + e.getMessage());
-        }
+        // Tidak perlu save secara khusus karena data sudah langsung ditulis ke SQLite
+        System.out.println("Data sudah tersimpan di SQLite.");
     }
     
     // Register shortcuts - dipanggil dari Main
@@ -537,13 +674,5 @@ public class MainController {
                 onBersihkanForm();
             }
         });
-    }
-
-    private void isiDataContoh() {
-        manager.tambahLagu(new Song("0097", "Pelangi Di Matamu", "Jamrud", "Rock", 5, 1999));
-        manager.tambahLagu(new Song("0098", "Hati-Hati di Jalan", "Tulus", "Pop", 4, 2022));
-        manager.tambahLagu(new Song("0099", "Zona Nyaman", "Fourtwnty", "Indie", 4, 2017));
-        manager.getDaftarLagu().get(0).setFavorit(true);
-        manager.getDaftarLagu().get(1).setFavorit(true);
     }
 }

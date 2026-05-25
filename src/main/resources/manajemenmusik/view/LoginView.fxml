@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
@@ -38,8 +39,8 @@
                    style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
 
             <!-- Subtitle -->
-            <Label text="Masuk untuk mengelola koleksi musikmu"
-                   style="-fx-font-size: 14px; -fx-text-fill: #4B5563;"/>
+            <Label text="Masuk atau daftar akun baru untuk mengelola koleksi musikmu"
+                   style="-fx-font-size: 14px; -fx-text-fill: #4B5563;" wrapText="true"/>
 
             <!-- Spacer -->
             <Region prefHeight="8"/>
@@ -76,9 +77,18 @@
                            -fx-cursor: hand;
                            -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.15), 12, 0, 0, 4);"/>
 
+            <!-- Register Button -->
+            <Button fx:id="btnRegister" text="Daftar Akun Baru" onAction="#onRegister"
+                    maxWidth="1.7976931348623157E308" prefHeight="50"
+                    style="-fx-background-color: transparent; -fx-background-radius: 25;
+                           -fx-border-color: #10B981; -fx-border-radius: 25; -fx-border-width: 2;
+                           -fx-text-fill: #10B981; -fx-font-size: 15px; -fx-font-weight: bold;
+                           -fx-cursor: hand;"/>
+
             <!-- Hint -->
-            <Label text="Login default: admin / 12345"
-                   style="-fx-font-size: 11px; -fx-text-fill: #9CA3AF; -fx-font-style: italic;"/>
+            <Label text="Masukkan username &amp; password, lalu klik Masuk atau Daftar Akun Baru"
+                   style="-fx-font-size: 11px; -fx-text-fill: #9CA3AF; -fx-font-style: italic;"
+                   wrapText="true"/>
         </VBox>
     </VBox>
 </VBox>

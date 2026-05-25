@@ -2,18 +2,19 @@ package manajemenmusik.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import manajemenmusik.model.Admin;
 import manajemenmusik.model.User;
+import manajemenmusik.service.MusicManager;
 
 /**
  * Controller untuk LoginView.fxml — MVC Pattern (Controller layer).
- * Menggunakan polymorphism melalui User.getRole() saat autentikasi.
+ * Mendukung Register dan Login menggunakan SQLite.
  */
 public class LoginController {
 
     @FXML private TextField tfUsername;
     @FXML private PasswordField pfPassword;
 
+    private final MusicManager manager = MusicManager.getInstance();
     private Runnable onLoginSuccess;
 
     // ---- Dipanggil oleh Main untuk menyetel callback ----
@@ -31,20 +32,51 @@ public class LoginController {
         String username = tfUsername.getText().trim();
         String password = pfPassword.getText().trim();
 
-        // Polymorphism: Admin extends User, menggunakan authenticate() dari User
-        User admin = new Admin("admin", "12345");
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Login Gagal", "Username dan password tidak boleh kosong.");
+            return;
+        }
 
-        if (admin.authenticate(username, password)) {
-            System.out.println("Login berhasil sebagai " + admin.getRole());
+        User user = manager.login(username, password);
+        if (user != null) {
+            System.out.println("Login berhasil sebagai " + user.getRole() + ": " + user.getUsername());
             if (onLoginSuccess != null) {
                 onLoginSuccess.run();
             }
         } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Login Gagal");
-            alert.setHeaderText(null);
-            alert.setContentText("Username atau password salah.");
-            alert.showAndWait();
+            showAlert(Alert.AlertType.ERROR, "Login Gagal", "Username atau password salah.");
         }
+    }
+
+    @FXML
+    private void onRegister() {
+        String username = tfUsername.getText().trim();
+        String password = pfPassword.getText().trim();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Register Gagal", "Username dan password tidak boleh kosong.");
+            return;
+        }
+
+        if (password.length() < 3) {
+            showAlert(Alert.AlertType.ERROR, "Register Gagal", "Password minimal 3 karakter.");
+            return;
+        }
+
+        if (manager.register(username, password)) {
+            showAlert(Alert.AlertType.INFORMATION, "Register Berhasil",
+                    "Akun \"" + username + "\" berhasil dibuat!\nSilakan login.");
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Register Gagal",
+                    "Username \"" + username + "\" sudah digunakan.");
+        }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String msg) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
     }
 }

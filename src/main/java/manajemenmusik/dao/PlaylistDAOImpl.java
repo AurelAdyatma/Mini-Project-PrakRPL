@@ -12,6 +12,7 @@ import java.util.Map;
 public class PlaylistDAOImpl implements PlaylistDAO {
 
     private final ObservableList<Playlist> daftarPlaylist = FXCollections.observableArrayList();
+    private int currentUserId;
 
     public PlaylistDAOImpl() {
         DatabaseConnection.initializeDatabase();
@@ -24,94 +25,144 @@ public class PlaylistDAOImpl implements PlaylistDAO {
 
     @Override
     public void tambahPlaylist(Playlist playlist) {
-        daftarPlaylist.add(playlist);
-        simpanData();
+        String sql = "INSERT INTO playlists(nama, user_id, is_public) VALUES(?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, playlist.getNama());
+            pstmt.setInt(2, playlist.getUserId());
+            pstmt.setInt(3, playlist.isPublic() ? 1 : 0);
+            pstmt.executeUpdate();
+            daftarPlaylist.add(playlist);
+        } catch (SQLException e) {
+            System.err.println("Gagal tambah playlist: " + e.getMessage());
+        }
     }
 
     @Override
     public void hapusPlaylist(Playlist playlist) {
-        daftarPlaylist.remove(playlist);
-        simpanData();
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            // Hapus lagu-lagu di playlist
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "DELETE FROM playlist_songs WHERE playlist_nama = ? AND playlist_user_id = ?")) {
+                ps.setString(1, playlist.getNama());
+                ps.setInt(2, playlist.getUserId());
+                ps.executeUpdate();
+            }
+            // Hapus playlist
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "DELETE FROM playlists WHERE nama = ? AND user_id = ?")) {
+                ps.setString(1, playlist.getNama());
+                ps.setInt(2, playlist.getUserId());
+                ps.executeUpdate();
+            }
+            conn.commit();
+            daftarPlaylist.remove(playlist);
+        } catch (SQLException e) {
+            System.err.println("Gagal hapus playlist: " + e.getMessage());
+        }
     }
 
     @Override
     public void hapusLaguDariSemuaPlaylist(Song song) {
+        String sql = "DELETE FROM playlist_songs WHERE song_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, song.getId());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Gagal hapus lagu dari playlist: " + e.getMessage());
+        }
         for (Playlist pl : daftarPlaylist) {
             pl.getLagu().remove(song);
         }
-        simpanData();
     }
 
     @Override
     public void simpanData() {
-        // Menyimpan status in-memory daftarPlaylist ke SQLite
+        // Simpan relasi playlist_songs untuk semua playlist in-memory
         try (Connection conn = DatabaseConnection.getConnection()) {
-            conn.setAutoCommit(false); // Transaksi
-            
-            try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate("DELETE FROM playlist_songs");
-                stmt.executeUpdate("DELETE FROM playlists");
-            }
-            
-            String insertPlaylist = "INSERT INTO playlists(nama) VALUES(?)";
-            String insertSong = "INSERT INTO playlist_songs(playlist_nama, song_id) VALUES(?, ?)";
-            
-            try (PreparedStatement psPlaylist = conn.prepareStatement(insertPlaylist);
-                 PreparedStatement psSong = conn.prepareStatement(insertSong)) {
-                
-                for (Playlist pl : daftarPlaylist) {
-                    psPlaylist.setString(1, pl.getNama());
-                    psPlaylist.executeUpdate();
-                    
+            conn.setAutoCommit(false);
+
+            for (Playlist pl : daftarPlaylist) {
+                // Hapus relasi lama
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "DELETE FROM playlist_songs WHERE playlist_nama = ? AND playlist_user_id = ?")) {
+                    ps.setString(1, pl.getNama());
+                    ps.setInt(2, pl.getUserId());
+                    ps.executeUpdate();
+                }
+                // Insert relasi baru
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "INSERT INTO playlist_songs(playlist_nama, playlist_user_id, song_id) VALUES(?, ?, ?)")) {
                     for (Song s : pl.getLagu()) {
-                        psSong.setString(1, pl.getNama());
-                        psSong.setString(2, s.getId());
-                        psSong.executeUpdate();
+                        ps.setString(1, pl.getNama());
+                        ps.setInt(2, pl.getUserId());
+                        ps.setString(3, s.getId());
+                        ps.executeUpdate();
                     }
                 }
             }
             conn.commit();
         } catch (SQLException e) {
-            System.err.println("Gagal menyimpan data playlist ke DB: " + e.getMessage());
+            System.err.println("Gagal simpan playlist: " + e.getMessage());
         }
     }
 
     @Override
-    public void muatData(ObservableList<Song> semuaLagu) {
+    public void togglePublic(Playlist playlist) {
+        playlist.setPublic(!playlist.isPublic());
+        String sql = "UPDATE playlists SET is_public = ? WHERE nama = ? AND user_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, playlist.isPublic() ? 1 : 0);
+            pstmt.setString(2, playlist.getNama());
+            pstmt.setInt(3, playlist.getUserId());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Gagal toggle public: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void muatData(ObservableList<Song> semuaLagu, int currentUserId) {
+        this.currentUserId = currentUserId;
         daftarPlaylist.clear();
-        
+
         Map<String, Song> songMap = new HashMap<>();
         for (Song s : semuaLagu) {
             songMap.put(s.getId(), s);
         }
 
-        String sqlPlaylists = "SELECT nama FROM playlists";
-        String sqlSongs = "SELECT song_id FROM playlist_songs WHERE playlist_nama = ?";
-        
+        // Muat playlist milik user sendiri + playlist public milik user lain
+        String sql = "SELECT nama, user_id, is_public FROM playlists WHERE user_id = ? OR is_public = 1";
+        String sqlSongs = "SELECT song_id FROM playlist_songs WHERE playlist_nama = ? AND playlist_user_id = ?";
+
         try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rsPlaylists = stmt.executeQuery(sqlPlaylists)) {
-            
-            try (PreparedStatement psSongs = conn.prepareStatement(sqlSongs)) {
-                while (rsPlaylists.next()) {
-                    String nama = rsPlaylists.getString("nama");
-                    Playlist pl = new Playlist(nama);
-                    
+             PreparedStatement psPlaylists = conn.prepareStatement(sql);
+             PreparedStatement psSongs = conn.prepareStatement(sqlSongs)) {
+
+            psPlaylists.setInt(1, currentUserId);
+            try (ResultSet rs = psPlaylists.executeQuery()) {
+                while (rs.next()) {
+                    String nama = rs.getString("nama");
+                    int userId = rs.getInt("user_id");
+                    boolean isPublic = rs.getInt("is_public") == 1;
+                    Playlist pl = new Playlist(nama, userId, isPublic);
+
                     psSongs.setString(1, nama);
+                    psSongs.setInt(2, userId);
                     try (ResultSet rsSongs = psSongs.executeQuery()) {
                         while (rsSongs.next()) {
-                            String songId = rsSongs.getString("song_id");
-                            Song s = songMap.get(songId);
-                            if (s != null) {
-                                pl.tambahLagu(s);
-                            }
+                            Song s = songMap.get(rsSongs.getString("song_id"));
+                            if (s != null) pl.tambahLagu(s);
                         }
                     }
                     daftarPlaylist.add(pl);
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Gagal memuat data playlist dari DB: " + e.getMessage());
+            System.err.println("Gagal memuat playlist: " + e.getMessage());
         }
     }
 }

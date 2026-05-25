@@ -1,13 +1,10 @@
 package manajemenmusik.service;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import manajemenmusik.dao.SongDAO;
-import manajemenmusik.dao.SongDAOImpl;
-import manajemenmusik.dao.PlaylistDAO;
-import manajemenmusik.dao.PlaylistDAOImpl;
+import manajemenmusik.dao.*;
 import manajemenmusik.model.Playlist;
 import manajemenmusik.model.Song;
+import manajemenmusik.model.User;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +13,7 @@ import java.util.Set;
 
 /**
  * MusicManager — menerapkan Singleton Pattern.
- * Menjadi pusat koordinasi antara DAO dan logika bisnis (playlist, statistik).
+ * Menjadi pusat koordinasi antara DAO dan logika bisnis.
  */
 public class MusicManager {
 
@@ -33,14 +30,40 @@ public class MusicManager {
     // ---- Dependencies ----
     private final SongDAO songDAO;
     private final PlaylistDAO playlistDAO;
+    private final UserDAO userDAO;
+
+    // ---- Session ----
+    private User currentUser;
 
     private MusicManager() {
         this.songDAO = new SongDAOImpl();
         this.playlistDAO = new PlaylistDAOImpl();
-        this.playlistDAO.muatData(this.songDAO.getAll());
+        this.userDAO = new UserDAOImpl();
     }
 
-    // ---- Delegasi ke DAO ----
+    // ---- Auth ----
+
+    public boolean register(String username, String password) {
+        return userDAO.register(username, password);
+    }
+
+    public User login(String username, String password) {
+        User user = userDAO.login(username, password);
+        if (user != null) {
+            this.currentUser = user;
+        }
+        return user;
+    }
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void logout() {
+        this.currentUser = null;
+    }
+
+    // ---- Delegasi ke SongDAO ----
 
     public ObservableList<Song> getDaftarLagu() {
         return songDAO.getAll();
@@ -53,6 +76,10 @@ public class MusicManager {
     public void hapusLagu(Song song) {
         songDAO.hapus(song);
         playlistDAO.hapusLaguDariSemuaPlaylist(song);
+    }
+
+    public void hapusSemuaLagu() {
+        songDAO.hapusSemua();
     }
 
     public void editLagu(Song orig, String id, String judul, String artis,
@@ -101,8 +128,18 @@ public class MusicManager {
     public void hapusPlaylist(Playlist pl) {
         playlistDAO.hapusPlaylist(pl);
     }
-    
+
     public void simpanPlaylist() {
         playlistDAO.simpanData();
+    }
+
+    public void togglePublicPlaylist(Playlist pl) {
+        playlistDAO.togglePublic(pl);
+    }
+
+    public void muatPlaylist() {
+        if (currentUser != null) {
+            playlistDAO.muatData(songDAO.getAll(), currentUser.getId());
+        }
     }
 }

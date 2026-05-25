@@ -10,5 +10,6 @@ public interface PlaylistDAO {
     void hapusPlaylist(Playlist playlist);
     void hapusLaguDariSemuaPlaylist(Song song);
     void simpanData();
-    void muatData(ObservableList<Song> semuaLagu);
+    void muatData(ObservableList<Song> semuaLagu, int currentUserId);
+    void togglePublic(Playlist playlist);
 }

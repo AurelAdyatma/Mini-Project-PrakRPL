@@ -18,6 +18,8 @@ public interface SongDAO {
 
     void hapus(Song song);
 
+    void hapusSemua();
+
     void edit(Song orig, String id, String judul, String artis,
               String genre, int durasi, int tahun);
 

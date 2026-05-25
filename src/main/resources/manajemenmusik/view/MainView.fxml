@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -20,12 +21,12 @@
 
     <!-- ==================== HEADER (TOP) ==================== -->
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="14" style="-fx-background-color: #232334;                      -fx-border-color: transparent transparent #1a1a26 transparent;                      -fx-border-width: 0 0 1 0;">
+        <HBox alignment="CENTER_LEFT" spacing="14" style="-fx-background-color: #232334;
+                     -fx-border-color: transparent transparent #1a1a26 transparent;
+                     -fx-border-width: 0 0 1 0;">
             <padding>
                 <Insets bottom="10" left="20" right="24" top="10" />
             </padding>
-
-            <!-- Removed Icon -->
 
             <VBox spacing="1">
                 <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFFFFF;" text="MusikApp" />
@@ -34,38 +35,59 @@
 
             <Region HBox.hgrow="ALWAYS" />
 
-            <TextField fx:id="tfSearch" prefWidth="320" promptText="Cari judul, artis, genre..." style="-fx-background-color: #35354A; -fx-background-radius: 20;                               -fx-border-color: transparent; -fx-border-radius: 20;                               -fx-text-fill: #FFFFFF; -fx-prompt-text-fill: #9CA3AF;                               -fx-padding: 9 16; -fx-font-size: 13px; -fx-pref-height: 38;" />
+            <TextField fx:id="tfSearch" prefWidth="320" promptText="Cari judul, artis, genre..." style="-fx-background-color: #35354A; -fx-background-radius: 20;
+                              -fx-border-color: transparent; -fx-border-radius: 20;
+                              -fx-text-fill: #FFFFFF; -fx-prompt-text-fill: #9CA3AF;
+                              -fx-padding: 9 16; -fx-font-size: 13px; -fx-pref-height: 38;" />
 
-            <Label style="-fx-text-fill: #E5E7EB; -fx-font-size: 13px; -fx-padding: 0 4;" text="admin" />
+            <Label fx:id="lblUsername" style="-fx-text-fill: #E5E7EB; -fx-font-size: 13px; -fx-padding: 0 4;" text="user" />
         </HBox>
     </top>
 
     <!-- ==================== SIDEBAR (LEFT) ==================== -->
     <left>
-        <VBox prefWidth="240" spacing="3" style="-fx-background-color: #F9FAFB;                      -fx-border-color: transparent #E5E7EB transparent transparent;                      -fx-border-width: 0 1 0 0;">
+        <VBox prefWidth="240" spacing="3" style="-fx-background-color: #F9FAFB;
+                     -fx-border-color: transparent #E5E7EB transparent transparent;
+                     -fx-border-width: 0 1 0 0;">
             <padding>
                 <Insets bottom="14" left="8" right="8" top="14" />
             </padding>
 
-            <Label style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #6B7280;                           -fx-padding: 6 14 2 14;" text="MENU" />
+            <Label style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #6B7280;
+                          -fx-padding: 6 14 2 14;" text="MENU" />
 
-            <Button fx:id="btnNavPustaka" alignment="CENTER_LEFT" onAction="#onNavPustaka" prefWidth="224" style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;                            -fx-text-fill: #111827; -fx-font-size: 13px; -fx-font-weight: bold;                            -fx-cursor: hand; -fx-padding: 10 14;                            -fx-border-color: transparent transparent transparent #10B981;                            -fx-border-width: 0 0 0 4;" text="Perpustakaan" />
+            <Button fx:id="btnNavPustaka" alignment="CENTER_LEFT" onAction="#onNavPustaka" prefWidth="224" style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;
+                           -fx-text-fill: #111827; -fx-font-size: 13px; -fx-font-weight: bold;
+                           -fx-cursor: hand; -fx-padding: 10 14;
+                           -fx-border-color: transparent transparent transparent #10B981;
+                           -fx-border-width: 0 0 0 4;" text="Perpustakaan" />
 
-            <Button fx:id="btnNavFavorit" alignment="CENTER_LEFT" onAction="#onNavFavorit" prefWidth="224" style="-fx-background-color: transparent; -fx-background-radius: 6;                            -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;                            -fx-cursor: hand; -fx-padding: 10 14;" text="Favorit" />
+            <Button fx:id="btnNavFavorit" alignment="CENTER_LEFT" onAction="#onNavFavorit" prefWidth="224" style="-fx-background-color: transparent; -fx-background-radius: 6;
+                           -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;
+                           -fx-cursor: hand; -fx-padding: 10 14;" text="Favorit" />
 
-            <Button fx:id="btnNavPlaylist" alignment="CENTER_LEFT" onAction="#onNavPlaylist" prefWidth="224" style="-fx-background-color: transparent; -fx-background-radius: 6;                            -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;                            -fx-cursor: hand; -fx-padding: 10 14;" text="Playlist" />
+            <Button fx:id="btnNavPlaylist" alignment="CENTER_LEFT" onAction="#onNavPlaylist" prefWidth="224" style="-fx-background-color: transparent; -fx-background-radius: 6;
+                           -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;
+                           -fx-cursor: hand; -fx-padding: 10 14;" text="Playlist" />
 
-            <Label style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #6B7280;                           -fx-padding: 18 14 2 14;" text="TOOLS" />
+            <Label style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #6B7280;
+                          -fx-padding: 18 14 2 14;" text="TOOLS" />
 
-            <Button fx:id="btnNavStatistik" alignment="CENTER_LEFT" onAction="#onNavStatistik" prefWidth="224" style="-fx-background-color: transparent; -fx-background-radius: 6;                            -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;                            -fx-cursor: hand; -fx-padding: 10 14;" text="Statistik" />
+            <Button fx:id="btnNavStatistik" alignment="CENTER_LEFT" onAction="#onNavStatistik" prefWidth="224" style="-fx-background-color: transparent; -fx-background-radius: 6;
+                           -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;
+                           -fx-cursor: hand; -fx-padding: 10 14;" text="Statistik" />
 
-            <Button fx:id="btnNavIO" alignment="CENTER_LEFT" onAction="#onNavIO" prefWidth="224" style="-fx-background-color: transparent; -fx-background-radius: 6;                            -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;                            -fx-cursor: hand; -fx-padding: 10 14;" text="Import / Export" />
+            <Button fx:id="btnNavIO" alignment="CENTER_LEFT" onAction="#onNavIO" prefWidth="224" style="-fx-background-color: transparent; -fx-background-radius: 6;
+                           -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;
+                           -fx-cursor: hand; -fx-padding: 10 14;" text="Import / Export" />
 
             <Region VBox.vgrow="ALWAYS" />
 
-            <Button fx:id="btnLogout" alignment="CENTER_LEFT" onAction="#onLogout" prefWidth="224" style="-fx-background-color: transparent; -fx-background-radius: 6;                            -fx-text-fill: #EF4444; -fx-font-size: 13px; -fx-font-weight: bold;                            -fx-cursor: hand; -fx-padding: 10 14;" text="Logout" />
+            <Button fx:id="btnLogout" alignment="CENTER_LEFT" onAction="#onLogout" prefWidth="224" style="-fx-background-color: transparent; -fx-background-radius: 6;
+                           -fx-text-fill: #EF4444; -fx-font-size: 13px; -fx-font-weight: bold;
+                           -fx-cursor: hand; -fx-padding: 10 14;" text="Logout" />
 
-            <Label style="-fx-text-fill: #9CA3AF; -fx-font-size: 10px; -fx-padding: 0 14;" text="v2.1.0  •  MusikApp" />
+            <Label style="-fx-text-fill: #9CA3AF; -fx-font-size: 10px; -fx-padding: 0 14;" text="v3.0.0  •  MusikApp" />
         </VBox>
     </left>
 
@@ -88,7 +110,9 @@
                     <Region HBox.hgrow="ALWAYS" />
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <Label style="-fx-text-fill: #4B5563; -fx-font-size: 13px;" text="Filter Genre:" />
-                        <ComboBox fx:id="cbGenre" prefHeight="36" prefWidth="170" style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;                                          -fx-border-color: #D1D5DB; -fx-border-radius: 6;                                          -fx-padding: 2 6;" />
+                        <ComboBox fx:id="cbGenre" prefHeight="36" prefWidth="170" style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;
+                                         -fx-border-color: #D1D5DB; -fx-border-radius: 6;
+                                         -fx-padding: 2 6;" />
                     </HBox>
                 </HBox>
 
@@ -126,50 +150,87 @@
 
                         <!-- ID -->
                         <VBox spacing="4">
-                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold;                                           -fx-text-fill: #4B5563; -fx-padding: 2 0 0 0;" text="ID LAGU" />
-                            <TextField fx:id="tfId" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Contoh: 1025" style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;                                               -fx-border-color: #D1D5DB; -fx-border-radius: 6;                                               -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;                                               -fx-padding: 9 12; -fx-font-size: 13px;" />
+                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold;
+                                          -fx-text-fill: #4B5563; -fx-padding: 2 0 0 0;" text="ID LAGU" />
+                            <TextField fx:id="tfId" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Contoh: 1025" style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;
+                                              -fx-border-color: #D1D5DB; -fx-border-radius: 6;
+                                              -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;
+                                              -fx-padding: 9 12; -fx-font-size: 13px;" />
                         </VBox>
 
                         <!-- Judul -->
                         <VBox spacing="4">
-                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold;                                           -fx-text-fill: #4B5563; -fx-padding: 2 0 0 0;" text="JUDUL LAGU" />
-                            <TextField fx:id="tfJudul" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Masukkan judul..." style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;                                               -fx-border-color: #D1D5DB; -fx-border-radius: 6;                                               -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;                                               -fx-padding: 9 12; -fx-font-size: 13px;" />
+                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold;
+                                          -fx-text-fill: #4B5563; -fx-padding: 2 0 0 0;" text="JUDUL LAGU" />
+                            <TextField fx:id="tfJudul" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Masukkan judul..." style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;
+                                              -fx-border-color: #D1D5DB; -fx-border-radius: 6;
+                                              -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;
+                                              -fx-padding: 9 12; -fx-font-size: 13px;" />
                         </VBox>
 
                         <!-- Artis -->
                         <VBox spacing="4">
-                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold;                                           -fx-text-fill: #4B5563; -fx-padding: 2 0 0 0;" text="ARTIS" />
-                            <TextField fx:id="tfArtis" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Nama artis..." style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;                                               -fx-border-color: #D1D5DB; -fx-border-radius: 6;                                               -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;                                               -fx-padding: 9 12; -fx-font-size: 13px;" />
+                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold;
+                                          -fx-text-fill: #4B5563; -fx-padding: 2 0 0 0;" text="ARTIS" />
+                            <TextField fx:id="tfArtis" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Nama artis..." style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;
+                                              -fx-border-color: #D1D5DB; -fx-border-radius: 6;
+                                              -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;
+                                              -fx-padding: 9 12; -fx-font-size: 13px;" />
                         </VBox>
 
                         <!-- Genre -->
                         <VBox spacing="4">
-                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold;                                           -fx-text-fill: #4B5563; -fx-padding: 2 0 0 0;" text="GENRE" />
-                            <TextField fx:id="tfGenre" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Pop, Rock, Indie..." style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;                                               -fx-border-color: #D1D5DB; -fx-border-radius: 6;                                               -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;                                               -fx-padding: 9 12; -fx-font-size: 13px;" />
+                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold;
+                                          -fx-text-fill: #4B5563; -fx-padding: 2 0 0 0;" text="GENRE" />
+                            <TextField fx:id="tfGenre" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Pop, Rock, Indie..." style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;
+                                              -fx-border-color: #D1D5DB; -fx-border-radius: 6;
+                                              -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;
+                                              -fx-padding: 9 12; -fx-font-size: 13px;" />
                         </VBox>
 
                         <!-- Durasi -->
                         <VBox spacing="4">
-                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold;                                           -fx-text-fill: #4B5563; -fx-padding: 2 0 0 0;" text="DURASI (MENIT)" />
-                            <TextField fx:id="tfDurasi" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Contoh: 4" style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;                                               -fx-border-color: #D1D5DB; -fx-border-radius: 6;                                               -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;                                               -fx-padding: 9 12; -fx-font-size: 13px;" />
+                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold;
+                                          -fx-text-fill: #4B5563; -fx-padding: 2 0 0 0;" text="DURASI (MENIT)" />
+                            <TextField fx:id="tfDurasi" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Contoh: 4" style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;
+                                              -fx-border-color: #D1D5DB; -fx-border-radius: 6;
+                                              -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;
+                                              -fx-padding: 9 12; -fx-font-size: 13px;" />
                         </VBox>
 
                         <!-- Tahun -->
                         <VBox spacing="4">
-                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold;                                           -fx-text-fill: #4B5563; -fx-padding: 2 0 0 0;" text="TAHUN RILIS" />
-                            <TextField fx:id="tfTahun" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Contoh: 2024" style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;                                               -fx-border-color: #D1D5DB; -fx-border-radius: 6;                                               -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;                                               -fx-padding: 9 12; -fx-font-size: 13px;" />
+                            <Label style="-fx-font-size: 11px; -fx-font-weight: bold;
+                                          -fx-text-fill: #4B5563; -fx-padding: 2 0 0 0;" text="TAHUN RILIS" />
+                            <TextField fx:id="tfTahun" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Contoh: 2024" style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;
+                                              -fx-border-color: #D1D5DB; -fx-border-radius: 6;
+                                              -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;
+                                              -fx-padding: 9 12; -fx-font-size: 13px;" />
                         </VBox>
 
                         <Separator style="-fx-background-color: #E5E7EB; -fx-min-height: 1;" />
 
                         <!-- Buttons -->
-                        <Button fx:id="btnTambah" maxWidth="1.7976931348623157E308" onAction="#onTambahLagu" style="-fx-background-color: #10B981; -fx-background-radius: 20;                                        -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;                                        -fx-cursor: hand; -fx-padding: 9 22;" text="Tambah Lagu" />
+                        <Button fx:id="btnTambah" maxWidth="1.7976931348623157E308" onAction="#onTambahLagu" style="-fx-background-color: #10B981; -fx-background-radius: 20;
+                                       -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                       -fx-cursor: hand; -fx-padding: 9 22;" text="Tambah Lagu" />
 
-                        <Button fx:id="btnEdit" maxWidth="1.7976931348623157E308" onAction="#onEditLagu" style="-fx-background-color: #D97706; -fx-background-radius: 20;                                        -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;                                        -fx-cursor: hand; -fx-padding: 9 22;" text="Simpan Perubahan" />
+                        <Button fx:id="btnEdit" maxWidth="1.7976931348623157E308" onAction="#onEditLagu" style="-fx-background-color: #D97706; -fx-background-radius: 20;
+                                       -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                       -fx-cursor: hand; -fx-padding: 9 22;" text="Simpan Perubahan" />
 
-                        <Button fx:id="btnHapus" maxWidth="1.7976931348623157E308" onAction="#onHapusLagu" style="-fx-background-color: #EF4444; -fx-background-radius: 20;                                        -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;                                        -fx-cursor: hand; -fx-padding: 9 22;" text="Hapus Lagu" />
+                        <Button fx:id="btnHapus" maxWidth="1.7976931348623157E308" onAction="#onHapusLagu" style="-fx-background-color: #EF4444; -fx-background-radius: 20;
+                                       -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                       -fx-cursor: hand; -fx-padding: 9 22;" text="Hapus Lagu" />
 
-                        <Button fx:id="btnReset" maxWidth="1.7976931348623157E308" onAction="#onBersihkanForm" style="-fx-background-color: transparent; -fx-background-radius: 20;                                        -fx-border-color: #D1D5DB; -fx-border-radius: 20; -fx-border-width: 1;                                        -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;                                        -fx-cursor: hand; -fx-padding: 8 21;" text="Bersihkan Form" />
+                        <Button fx:id="btnHapusSemua" maxWidth="1.7976931348623157E308" onAction="#onHapusSemuaLagu" style="-fx-background-color: #991B1B; -fx-background-radius: 20;
+                                       -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                       -fx-cursor: hand; -fx-padding: 9 22;" text="Hapus Semua Lagu" />
+
+                        <Button fx:id="btnReset" maxWidth="1.7976931348623157E308" onAction="#onBersihkanForm" style="-fx-background-color: transparent; -fx-background-radius: 20;
+                                       -fx-border-color: #D1D5DB; -fx-border-radius: 20; -fx-border-width: 1;
+                                       -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;
+                                       -fx-cursor: hand; -fx-padding: 8 21;" text="Bersihkan Form" />
                     </VBox>
                 </HBox>
             </VBox>
@@ -206,20 +267,35 @@
                 <HBox spacing="20" VBox.vgrow="ALWAYS">
 
                     <!-- Left: Daftar Playlist -->
-                    <VBox minWidth="260" prefWidth="260" spacing="12" style="-fx-background-color: #FFFFFF; -fx-background-radius: 10; -fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 10;">
+                    <VBox minWidth="280" prefWidth="280" spacing="12" style="-fx-background-color: #FFFFFF; -fx-background-radius: 10; -fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 10;">
                         <padding>
                             <Insets bottom="18" left="18" right="18" top="18" />
                         </padding>
 
                         <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #111827;" text="Daftar Playlist" />
 
-                        <ListView fx:id="listViewPlaylist" style="-fx-background-color: #FFFFFF; -fx-border-color: #E5E7EB;                                          -fx-background-radius: 8; -fx-border-radius: 8;" VBox.vgrow="ALWAYS" />
+                        <ListView fx:id="listViewPlaylist" style="-fx-background-color: #FFFFFF; -fx-border-color: #E5E7EB;
+                                         -fx-background-radius: 8; -fx-border-radius: 8;" VBox.vgrow="ALWAYS" />
 
-                        <TextField fx:id="tfPlaylistNama" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Nama playlist baru..." style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;                                           -fx-border-color: #D1D5DB; -fx-border-radius: 6;                                           -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;                                           -fx-padding: 9 12; -fx-font-size: 13px;" />
+                        <TextField fx:id="tfPlaylistNama" maxWidth="1.7976931348623157E308" prefHeight="38" promptText="Nama playlist baru..." style="-fx-background-color: #FFFFFF; -fx-background-radius: 6;
+                                          -fx-border-color: #D1D5DB; -fx-border-radius: 6;
+                                          -fx-text-fill: #111827; -fx-prompt-text-fill: #9CA3AF;
+                                          -fx-padding: 9 12; -fx-font-size: 13px;" />
 
-                        <Button maxWidth="1.7976931348623157E308" onAction="#onBuatPlaylist" style="-fx-background-color: #10B981; -fx-background-radius: 20;                                        -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;                                        -fx-cursor: hand; -fx-padding: 9 22;" text="Buat Playlist" />
+                        <CheckBox fx:id="cbPublicPlaylist" text="Jadikan Public"
+                                  style="-fx-font-size: 12px; -fx-text-fill: #4B5563;" />
 
-                        <Button maxWidth="1.7976931348623157E308" onAction="#onHapusPlaylist" style="-fx-background-color: #EF4444; -fx-background-radius: 20;                                        -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;                                        -fx-cursor: hand; -fx-padding: 9 22;" text="Hapus Playlist" />
+                        <Button maxWidth="1.7976931348623157E308" onAction="#onBuatPlaylist" style="-fx-background-color: #10B981; -fx-background-radius: 20;
+                                       -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                       -fx-cursor: hand; -fx-padding: 9 22;" text="Buat Playlist" />
+
+                        <Button maxWidth="1.7976931348623157E308" onAction="#onTogglePublicPlaylist" style="-fx-background-color: #2563EB; -fx-background-radius: 20;
+                                       -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                       -fx-cursor: hand; -fx-padding: 9 22;" text="Toggle Public/Private" />
+
+                        <Button maxWidth="1.7976931348623157E308" onAction="#onHapusPlaylist" style="-fx-background-color: #EF4444; -fx-background-radius: 20;
+                                       -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                       -fx-cursor: hand; -fx-padding: 9 22;" text="Hapus Playlist" />
                     </VBox>
 
                     <!-- Right: Isi Playlist -->
@@ -254,8 +330,12 @@
                         </TableView>
 
                         <HBox spacing="10">
-                            <Button maxWidth="1.7976931348623157E308" onAction="#onTambahKePlaylist" style="-fx-background-color: #8B5CF6; -fx-background-radius: 20;                                            -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;                                            -fx-cursor: hand; -fx-padding: 9 22;" text="Tambahkan Lagu" HBox.hgrow="ALWAYS" />
-                            <Button maxWidth="1.7976931348623157E308" onAction="#onHapusDariPlaylist" style="-fx-background-color: #EF4444; -fx-background-radius: 20;                                            -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;                                            -fx-cursor: hand; -fx-padding: 9 22;" text="Hapus dari Playlist" HBox.hgrow="ALWAYS" />
+                            <Button maxWidth="1.7976931348623157E308" onAction="#onTambahKePlaylist" style="-fx-background-color: #8B5CF6; -fx-background-radius: 20;
+                                           -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                           -fx-cursor: hand; -fx-padding: 9 22;" text="Tambahkan Lagu" HBox.hgrow="ALWAYS" />
+                            <Button maxWidth="1.7976931348623157E308" onAction="#onHapusDariPlaylist" style="-fx-background-color: #EF4444; -fx-background-radius: 20;
+                                           -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                           -fx-cursor: hand; -fx-padding: 9 22;" text="Hapus dari Playlist" HBox.hgrow="ALWAYS" />
                         </HBox>
                     </VBox>
                 </HBox>
@@ -268,25 +348,33 @@
                 <!-- Stat Cards -->
                 <HBox spacing="16">
                     <!-- Total Lagu -->
-                    <VBox alignment="TOP_LEFT" spacing="6" style="-fx-background-color: #ECFDF5; -fx-background-radius: 12;                                  -fx-border-radius: 12; -fx-border-color: #A7F3D0;                                  -fx-border-width: 1; -fx-padding: 20;" HBox.hgrow="ALWAYS">
+                    <VBox alignment="TOP_LEFT" spacing="6" style="-fx-background-color: #ECFDF5; -fx-background-radius: 12;
+                                 -fx-border-radius: 12; -fx-border-color: #A7F3D0;
+                                 -fx-border-width: 1; -fx-padding: 20;" HBox.hgrow="ALWAYS">
                         <Label fx:id="lblStatTotal" style="-fx-font-size: 34px; -fx-font-weight: bold; -fx-text-fill: #059669;" text="0" />
                         <Label style="-fx-font-size: 12px; -fx-text-fill: #047857; -fx-font-weight: bold;" text="Total Lagu" />
                     </VBox>
 
                     <!-- Total Artis -->
-                    <VBox alignment="TOP_LEFT" spacing="6" style="-fx-background-color: #F5F3FF; -fx-background-radius: 12;                                  -fx-border-radius: 12; -fx-border-color: #DDD6FE;                                  -fx-border-width: 1; -fx-padding: 20;" HBox.hgrow="ALWAYS">
+                    <VBox alignment="TOP_LEFT" spacing="6" style="-fx-background-color: #F5F3FF; -fx-background-radius: 12;
+                                 -fx-border-radius: 12; -fx-border-color: #DDD6FE;
+                                 -fx-border-width: 1; -fx-padding: 20;" HBox.hgrow="ALWAYS">
                         <Label fx:id="lblStatArtis" style="-fx-font-size: 34px; -fx-font-weight: bold; -fx-text-fill: #7C3AED;" text="0" />
                         <Label style="-fx-font-size: 12px; -fx-text-fill: #6D28D9; -fx-font-weight: bold;" text="Total Artis" />
                     </VBox>
 
                     <!-- Total Genre -->
-                    <VBox alignment="TOP_LEFT" spacing="6" style="-fx-background-color: #EFF6FF; -fx-background-radius: 12;                                  -fx-border-radius: 12; -fx-border-color: #BFDBFE;                                  -fx-border-width: 1; -fx-padding: 20;" HBox.hgrow="ALWAYS">
+                    <VBox alignment="TOP_LEFT" spacing="6" style="-fx-background-color: #EFF6FF; -fx-background-radius: 12;
+                                 -fx-border-radius: 12; -fx-border-color: #BFDBFE;
+                                 -fx-border-width: 1; -fx-padding: 20;" HBox.hgrow="ALWAYS">
                         <Label fx:id="lblStatGenre" style="-fx-font-size: 34px; -fx-font-weight: bold; -fx-text-fill: #2563EB;" text="0" />
                         <Label style="-fx-font-size: 12px; -fx-text-fill: #1D4ED8; -fx-font-weight: bold;" text="Total Genre" />
                     </VBox>
 
                     <!-- Favorit -->
-                    <VBox alignment="TOP_LEFT" spacing="6" style="-fx-background-color: #FEF2F2; -fx-background-radius: 12;                                  -fx-border-radius: 12; -fx-border-color: #FCA5A5;                                  -fx-border-width: 1; -fx-padding: 20;" HBox.hgrow="ALWAYS">
+                    <VBox alignment="TOP_LEFT" spacing="6" style="-fx-background-color: #FEF2F2; -fx-background-radius: 12;
+                                 -fx-border-radius: 12; -fx-border-color: #FCA5A5;
+                                 -fx-border-width: 1; -fx-padding: 20;" HBox.hgrow="ALWAYS">
                         <Label fx:id="lblStatFavorit" style="-fx-font-size: 34px; -fx-font-weight: bold; -fx-text-fill: #DC2626;" text="0" />
                         <Label style="-fx-font-size: 12px; -fx-text-fill: #B91C1C; -fx-font-weight: bold;" text="♥   Favorit" />
                     </VBox>
@@ -317,7 +405,9 @@
 
                     <Label style="-fx-font-size: 13px; -fx-text-fill: #4B5563;" text="Simpan seluruh data lagu ke file CSV. File dapat dibuka dengan Microsoft Excel atau Google Sheets." wrapText="true" />
 
-                    <Button onAction="#onExportCSV" style="-fx-background-color: #10B981; -fx-background-radius: 20;                                    -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;                                    -fx-cursor: hand; -fx-padding: 9 22;" text="Export Semua Lagu ke CSV" />
+                    <Button onAction="#onExportCSV" style="-fx-background-color: #10B981; -fx-background-radius: 20;
+                                   -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                   -fx-cursor: hand; -fx-padding: 9 22;" text="Export Semua Lagu ke CSV" />
                 </VBox>
 
                 <!-- Import Card -->
@@ -330,7 +420,9 @@
 
                     <Label style="-fx-font-size: 13px; -fx-text-fill: #4B5563;" text="Muat data lagu dari file CSV. Format kolom: ID, Judul, Artis, Genre, Durasi, Tahun, Favorit (opsional). Data akan ditambahkan ke perpustakaan yang sudah ada. Lagu dengan ID yang sama akan dilewati." wrapText="true" />
 
-                    <Button onAction="#onImportCSV" style="-fx-background-color: #8B5CF6; -fx-background-radius: 20;                                    -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;                                    -fx-cursor: hand; -fx-padding: 9 22;" text="Import Lagu dari CSV" />
+                    <Button onAction="#onImportCSV" style="-fx-background-color: #8B5CF6; -fx-background-radius: 20;
+                                   -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                   -fx-cursor: hand; -fx-padding: 9 22;" text="Import Lagu dari CSV" />
                 </VBox>
             </VBox>
 

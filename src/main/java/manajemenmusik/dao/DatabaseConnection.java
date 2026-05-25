@@ -16,8 +16,17 @@ public class DatabaseConnection {
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
 
-            // Create songs table
-            String createSongsTable = "CREATE TABLE IF NOT EXISTS songs ("
+            stmt.execute("PRAGMA foreign_keys = ON;");
+
+            // Tabel users
+            stmt.execute("CREATE TABLE IF NOT EXISTS users ("
+                    + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + "username TEXT NOT NULL UNIQUE, "
+                    + "password TEXT NOT NULL"
+                    + ");");
+
+            // Tabel songs (global)
+            stmt.execute("CREATE TABLE IF NOT EXISTS songs ("
                     + "id TEXT PRIMARY KEY, "
                     + "judul TEXT NOT NULL, "
                     + "artis TEXT NOT NULL, "
@@ -25,24 +34,31 @@ public class DatabaseConnection {
                     + "durasi INTEGER, "
                     + "tahun INTEGER, "
                     + "favorit INTEGER DEFAULT 0"
-                    + ");";
-            stmt.execute(createSongsTable);
+                    + ");");
 
-            // Create playlists table
-            String createPlaylistsTable = "CREATE TABLE IF NOT EXISTS playlists ("
-                    + "nama TEXT PRIMARY KEY"
-                    + ");";
-            stmt.execute(createPlaylistsTable);
+            // Tabel playlists (per-user, dengan visibilitas)
+            stmt.execute("CREATE TABLE IF NOT EXISTS playlists ("
+                    + "nama TEXT NOT NULL, "
+                    + "user_id INTEGER NOT NULL, "
+                    + "is_public INTEGER DEFAULT 0, "
+                    + "PRIMARY KEY (nama, user_id), "
+                    + "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+                    + ");");
 
-            // Create playlist_songs table (many-to-many relationship)
-            String createPlaylistSongsTable = "CREATE TABLE IF NOT EXISTS playlist_songs ("
+            // Tabel playlist_songs (many-to-many)
+            stmt.execute("CREATE TABLE IF NOT EXISTS playlist_songs ("
                     + "playlist_nama TEXT, "
+                    + "playlist_user_id INTEGER, "
                     + "song_id TEXT, "
-                    + "PRIMARY KEY (playlist_nama, song_id), "
-                    + "FOREIGN KEY (playlist_nama) REFERENCES playlists(nama) ON DELETE CASCADE, "
+                    + "PRIMARY KEY (playlist_nama, playlist_user_id, song_id), "
+                    + "FOREIGN KEY (playlist_nama, playlist_user_id) REFERENCES playlists(nama, user_id) ON DELETE CASCADE, "
                     + "FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE"
-                    + ");";
-            stmt.execute(createPlaylistSongsTable);
+                    + ");");
+
+            // Migrasi: tambah kolom baru jika tabel lama sudah ada
+            try { stmt.execute("ALTER TABLE playlists ADD COLUMN user_id INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE playlists ADD COLUMN is_public INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE playlist_songs ADD COLUMN playlist_user_id INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
 
         } catch (SQLException e) {
             System.err.println("Gagal menginisialisasi database: " + e.getMessage());
