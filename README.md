@@ -8,17 +8,23 @@ MusikApp adalah aplikasi manajemen musik berbasis GUI yang memungkinkan pengguna
 
 ## Fitur Utama
 
-- Autentikasi — Login dan registrasi akun pengguna
-- Manajemen Lagu — Tambah, edit, hapus, dan cari lagu
-- Playlist — Buat dan kelola playlist (termasuk mode public/private)
-- Favorit — Tandai lagu sebagai favorit
-- Filter & Pencarian — Cari berdasarkan keyword, artis, atau genre
-- Statistik Genre — Visualisasi distribusi genre lagu
-- Export CSV — Ekspor daftar lagu ke file CSV
-- Import CSV — Impor lagu dari file CSV
-- Keyboard Shortcut — Navigasi cepat menggunakan shortcut
+- Register
+- Login
+- Multi-user
+- Tambah lagu
+- Edit lagu
+- Hapus lagu
+- Pencarian lagu
+- Filter genre
+- Favorit
+- Playlist
+- Public/Private playlist
+- Statistik musik
+- Import CSV
+- Export CSV
 
-**Design Pattern yang diterapkan:**
+## Design Pattern yang diterapkan:
+
 - MVC Pattern — Pemisahan antara Model, View (FXML), dan Controller
 - Singleton Pattern — MusicManager sebagai pusat koordinasi
 - DAO Pattern — Abstraksi akses database via interface DAO
@@ -45,6 +51,14 @@ mvn javafx:run
 mvn clean package
 ```
 
+## ⚙️ Prasyarat
+
+Pastikan sudah terinstal:
+
+- **Java JDK 21** atau lebih baru → [Download JDK](https://adoptium.net/)
+- **Apache Maven 3.8+** → [Download Maven](https://maven.apache.org/download.cgi)
+- (Opsional) **IntelliJ IDEA** untuk membuka project langsung
+
 ## Cara Penggunaan
 
 1. Jalankan aplikasi — akan muncul halaman **Login**
@@ -57,11 +71,11 @@ mvn clean package
    - Mengekspor data via menu **Export CSV**
 5. Saat menutup aplikasi, akan muncul konfirmasi untuk **menyimpan data**
 
-## 🗄️ Database
+## Database
 
 Aplikasi menggunakan **SQLite** dengan file database lokal bernama `musikapp.db` yang otomatis dibuat di direktori project saat pertama kali dijalankan.
 
-## 👥 Anggota Kelompok
+## Anggota Kelompok
 
 | Nama | NIM |
 |---|---|
