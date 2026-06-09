@@ -23,7 +23,13 @@ public interface SongDAO {
     void edit(Song orig, String id, String judul, String artis,
               String genre, int durasi, int tahun);
 
+    void pulihkan(Song song);
+
+    void hapusPermanen(Song song);
+
     ObservableList<Song> getAll();
+
+    ObservableList<Song> getRecycleBin();
 
     ObservableList<Song> getFavorit();
 

@@ -59,6 +59,7 @@ public class DatabaseConnection {
             try { stmt.execute("ALTER TABLE playlists ADD COLUMN user_id INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
             try { stmt.execute("ALTER TABLE playlists ADD COLUMN is_public INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
             try { stmt.execute("ALTER TABLE playlist_songs ADD COLUMN playlist_user_id INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE songs ADD COLUMN is_deleted INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
 
         } catch (SQLException e) {
             System.err.println("Gagal menginisialisasi database: " + e.getMessage());

@@ -2,6 +2,7 @@ package manajemenmusik.controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,6 +19,8 @@ import manajemenmusik.service.MusicManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.Optional;
 
@@ -52,17 +55,17 @@ public class MainController {
     private Song selectedSong = null;
     private static final String DB_FILE = "music_database.csv";
 
-    private static final String ACTIVE_STYLE = 
-        "-fx-background-color: #FFFFFF; -fx-background-radius: 6; " +
-        "-fx-text-fill: #111827; -fx-font-size: 13px; -fx-font-weight: bold; " +
-        "-fx-cursor: hand; -fx-padding: 10 14; " +
-        "-fx-border-color: transparent transparent transparent #10B981; -fx-border-width: 0 0 0 4;";
+    private static final String ACTIVE_STYLE =
+            "-fx-background-color: #FFFFFF; -fx-background-radius: 6; " +
+                    "-fx-text-fill: #111827; -fx-font-size: 13px; -fx-font-weight: bold; " +
+                    "-fx-cursor: hand; -fx-padding: 10 14; " +
+                    "-fx-border-color: transparent transparent transparent #10B981; -fx-border-width: 0 0 0 4;";
 
-    private static final String INACTIVE_STYLE = 
-        "-fx-background-color: transparent; -fx-background-radius: 6; " +
-        "-fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold; " +
-        "-fx-cursor: hand; -fx-padding: 10 14; " +
-        "-fx-border-color: transparent; -fx-border-width: 0;";
+    private static final String INACTIVE_STYLE =
+            "-fx-background-color: transparent; -fx-background-radius: 6; " +
+                    "-fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold; " +
+                    "-fx-cursor: hand; -fx-padding: 10 14; " +
+                    "-fx-border-color: transparent; -fx-border-width: 0;";
 
     private static class BadgeStyle {
         final String bg;
@@ -74,8 +77,8 @@ public class MainController {
     }
 
     // ---- Navigasi ----
-    @FXML private Button btnNavPustaka, btnNavFavorit, btnNavPlaylist, btnNavStatistik, btnNavIO;
-    @FXML private VBox panelPustaka, panelFavorit, panelPlaylist, panelStatistik, panelImportExport;
+    @FXML private Button btnNavPustaka, btnNavFavorit, btnNavPlaylist, btnNavStatistik, btnNavIO, btnNavRecycle;
+    @FXML private VBox panelPustaka, panelFavorit, panelPlaylist, panelStatistik, panelImportExport, panelRecycleBin;
     private Button activeNavBtn;
 
     // ---- Header ----
@@ -109,6 +112,12 @@ public class MainController {
     @FXML private TableColumn<Song, Boolean> colFavPl;
     @FXML private ComboBox<Song> cbLaguTersedia;
 
+    // ---- Recycle Bin ----
+    @FXML private TableView<Song> tabelRecycleBin;
+    @FXML private TableColumn<Song, Integer> colNoRec, colDurasiRec, colTahunRec;
+    @FXML private TableColumn<Song, String> colIdRec, colJudulRec, colArtisRec, colGenreRec;
+    @FXML private TableColumn<Song, Boolean> colFavRec;
+
     // ---- Statistik ----
     @FXML private Label lblStatTotal, lblStatArtis, lblStatGenre, lblStatFavorit;
     @FXML private VBox genreStatBox;
@@ -135,12 +144,17 @@ public class MainController {
         btnNavPlaylist.setStyle(INACTIVE_STYLE);
         btnNavStatistik.setStyle(INACTIVE_STYLE);
         btnNavIO.setStyle(INACTIVE_STYLE);
+        if (btnNavRecycle != null) btnNavRecycle.setStyle(INACTIVE_STYLE);
         activeNavBtn = btnNavPustaka;
 
         // Init tables
         setupTable(tabelPustaka, colNoPustaka, colIdPustaka, colJudulPustaka, colArtisPustaka, colGenrePustaka, colDurasiPustaka, colTahunPustaka, colFavPustaka);
         setupTable(tabelFavorit, colNoFav, colIdFav, colJudulFav, colArtisFav, colGenreFav, colDurasiFav, colTahunFav, colFavFav);
         setupTable(tabelPlaylistSong, colNoPl, colIdPl, colJudulPl, colArtisPl, colGenrePl, colDurasiPl, colTahunPl, colFavPl);
+        if (tabelRecycleBin != null) {
+            setupTable(tabelRecycleBin, colNoRec, colIdRec, colJudulRec, colArtisRec, colGenreRec, colDurasiRec, colTahunRec, colFavRec);
+            tabelRecycleBin.setItems(manager.getRecycleBin());
+        }
 
         // Bind data
         tabelPustaka.setItems(manager.getDaftarLagu());
@@ -329,6 +343,10 @@ public class MainController {
     @FXML private void onNavPlaylist()  { navTo(btnNavPlaylist, panelPlaylist); }
     @FXML private void onNavStatistik() { navTo(btnNavStatistik, panelStatistik); refreshStatistik(); }
     @FXML private void onNavIO()        { navTo(btnNavIO, panelImportExport); }
+    @FXML private void onNavRecycleBin() {
+        navTo(btnNavRecycle, panelRecycleBin);
+        if (tabelRecycleBin != null) tabelRecycleBin.setItems(manager.getRecycleBin());
+    }
 
     /**
      * navTo() — Mengelola pergantian panel konten utama.
@@ -346,6 +364,7 @@ public class MainController {
         panelPlaylist.setVisible(false); panelPlaylist.setManaged(false);
         panelStatistik.setVisible(false); panelStatistik.setManaged(false);
         panelImportExport.setVisible(false); panelImportExport.setManaged(false);
+        if (panelRecycleBin != null) { panelRecycleBin.setVisible(false); panelRecycleBin.setManaged(false); }
         panel.setVisible(true); panel.setManaged(true);
     }
 
@@ -435,11 +454,12 @@ public class MainController {
     @FXML
     private void onHapusLagu() {
         if (selectedSong == null) return;
-        if (confirm("Hapus Lagu", "Hapus \"" + selectedSong.getJudul() + "\"?\nTindakan ini tidak dapat dibatalkan.")) {
+        if (confirm("Hapus Lagu", "Hapus \"" + selectedSong.getJudul() + "\"?\nLagu akan dipindahkan ke Recycle Bin.")) {
             manager.hapusLagu(selectedSong);
             onBersihkanForm();
             refreshGenreFilter();
             refreshFavorit();
+            if (tabelRecycleBin != null) tabelRecycleBin.setItems(manager.getRecycleBin());
         }
     }
 
@@ -490,7 +510,9 @@ public class MainController {
     private void applyFilters() {
         String kw = tfSearch.getText();
         String genre = cbGenre.getSelectionModel().getSelectedItem();
-        tabelPustaka.setItems(manager.filter(kw, genre));
+        SortedList<Song> sortedData = new SortedList<>(manager.filter(kw, genre));
+        sortedData.comparatorProperty().bind(tabelPustaka.comparatorProperty());
+        tabelPustaka.setItems(sortedData);
     }
 
     private void refreshGenreFilter() {
@@ -721,6 +743,78 @@ public class MainController {
             } catch (IOException ex) {
                 alert("Import Gagal", "Gagal mengimpor: " + ex.getMessage());
             }
+        }
+    }
+
+    // ================================================================
+    // BACKUP / RESTORE DATABASE
+    // ================================================================
+
+    @FXML
+    private void onBackupDatabase() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Backup Database SQLite");
+        fc.setInitialFileName("musikapp_backup.db");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQLite Database", "*.db"));
+        File file = fc.showSaveDialog(tfSearch.getScene().getWindow());
+        if (file != null) {
+            try {
+                Files.copy(new File("musikapp.db").toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                alert("Backup Berhasil", "Database berhasil di-backup ke:\n" + file.getAbsolutePath());
+            } catch (IOException e) {
+                alert("Backup Gagal", "Terjadi kesalahan saat mem-backup: " + e.getMessage());
+            }
+        }
+    }
+
+    @FXML
+    private void onRestoreDatabase() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Restore Database SQLite");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQLite Database", "*.db"));
+        File file = fc.showOpenDialog(tfSearch.getScene().getWindow());
+        if (file != null) {
+            if (confirm("Restore Database", "Apakah Anda yakin ingin me-restore dari file ini? Semua data saat ini akan tertimpa!")) {
+                try {
+                    Files.copy(file.toPath(), new File("musikapp.db").toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    loadDataOtomatis();
+                    if (tabelRecycleBin != null) tabelRecycleBin.setItems(manager.getRecycleBin());
+                    alert("Restore Berhasil", "Database berhasil di-restore dari:\n" + file.getAbsolutePath());
+                } catch (IOException e) {
+                    alert("Restore Gagal", "Terjadi kesalahan saat me-restore: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    // ================================================================
+    // RECYCLE BIN ACTIONS
+    // ================================================================
+
+    @FXML
+    private void onPulihkanLagu() {
+        Song selected = tabelRecycleBin.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            alert("Peringatan", "Pilih lagu yang ingin dipulihkan.");
+            return;
+        }
+        manager.pulihkanLagu(selected);
+        tabelRecycleBin.setItems(manager.getRecycleBin());
+        applyFilters();
+        refreshGenreFilter();
+        refreshFavorit();
+    }
+
+    @FXML
+    private void onHapusPermanenLagu() {
+        Song selected = tabelRecycleBin.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            alert("Peringatan", "Pilih lagu yang ingin dihapus permanen.");
+            return;
+        }
+        if (confirm("Hapus Permanen", "Hapus permanen lagu \"" + selected.getJudul() + "\"?")) {
+            manager.hapusPermanenLagu(selected);
+            tabelRecycleBin.setItems(manager.getRecycleBin());
         }
     }
 
