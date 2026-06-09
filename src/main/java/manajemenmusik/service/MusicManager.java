@@ -69,6 +69,10 @@ public class MusicManager {
         return songDAO.getAll();
     }
 
+    public ObservableList<Song> getRecycleBin() {
+        return songDAO.getRecycleBin();
+    }
+
     public boolean tambahLagu(Song song) {
         return songDAO.tambah(song);
     }
@@ -76,6 +80,14 @@ public class MusicManager {
     public void hapusLagu(Song song) {
         songDAO.hapus(song);
         playlistDAO.hapusLaguDariSemuaPlaylist(song);
+    }
+
+    public void pulihkanLagu(Song song) {
+        songDAO.pulihkan(song);
+    }
+
+    public void hapusPermanenLagu(Song song) {
+        songDAO.hapusPermanen(song);
     }
 
     public void hapusSemuaLagu() {
