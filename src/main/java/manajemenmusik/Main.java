@@ -53,9 +53,8 @@ public class Main extends Application {
             
             Scene scene = new Scene(root, 1350, 800);
             
-            // Auto load dan register shortcut
+            // Auto load data setelah login
             controller.loadDataOtomatis();
-            controller.registerShortcuts(scene);
 
             // Close confirmation
             stage.setOnCloseRequest(e -> {

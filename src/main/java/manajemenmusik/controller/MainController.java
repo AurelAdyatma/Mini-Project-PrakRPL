@@ -725,7 +725,7 @@ public class MainController {
     }
 
     // ================================================================
-    // HELPER METHODS — Dialog, Auto Save/Load, Keyboard Shortcut
+    // HELPER METHODS — Dialog, Auto Save/Load
     // ================================================================
 
     /** Menampilkan dialog informasi sederhana (OK). */
@@ -790,26 +790,5 @@ public class MainController {
         // Tidak perlu save secara khusus karena data sudah langsung ditulis ke SQLite
         System.out.println("Data sudah tersimpan di SQLite.");
     }
-    
-    /**
-     * registerShortcuts() — Mendaftarkan keyboard shortcut global pada Scene.
-     * Dipanggil dari Main.java setelah scene berhasil ditampilkan.
-     *
-     * Shortcut yang tersedia:
-     *  - Ctrl+F : Fokus ke field pencarian (tfSearch).
-     *  - Ctrl+S : Membuka dialog export CSV.
-     *  - Escape : Membersihkan form input dan menghapus seleksi tabel.
-     */
-    public void registerShortcuts(javafx.scene.Scene scene) {
-        scene.setOnKeyPressed(e -> {
-            boolean cmdOrCtrl = e.isControlDown() || e.isShortcutDown();
-            if (cmdOrCtrl && e.getCode() == javafx.scene.input.KeyCode.F) {
-                tfSearch.requestFocus();
-            } else if (cmdOrCtrl && e.getCode() == javafx.scene.input.KeyCode.S) {
-                onExportCSV();
-            } else if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
-                onBersihkanForm();
-            }
-        });
-    }
+
 }
