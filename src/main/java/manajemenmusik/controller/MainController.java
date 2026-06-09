@@ -23,10 +23,30 @@ import java.util.Optional;
 
 /**
  * MainController — MVC Controller layer untuk MainView.fxml.
- * Mengelola semua event dan data binding.
+ * Mengelola semua event dan data binding antara tampilan (View) dan logika bisnis (Service).
+ *
+ * Fitur yang dikelola:
+ *  - CRUD lagu (tambah, edit, hapus, hapus semua)
+ *  - Manajemen playlist (buat, hapus, toggle public/private, tambah/hapus lagu)
+ *  - Statistik koleksi musik (total lagu, artis, genre, favorit)
+ *  - Import dan Export data lagu via CSV
+ *  - Keyboard shortcut (Ctrl+F, Ctrl+S, Escape)
+ *  - Navigasi antar panel (Perpustakaan, Favorit, Playlist, Statistik, Import/Export)
  */
 public class MainController {
 
+    /*
+     * ================================================================
+     * FIELDS — State dan Konstanta
+     * ----------------------------------------------------------------
+     * manager      : Singleton service layer untuk semua operasi data.
+     * onLogout     : Callback yang dipanggil saat pengguna logout.
+     * selectedSong : Lagu yang sedang dipilih di tabel (diisi saat klik baris).
+     * DB_FILE      : Nama file CSV cadangan jika database SQLite kosong.
+     * ACTIVE_STYLE / INACTIVE_STYLE : String CSS untuk tombol navigasi sidebar.
+     * BadgeStyle   : Data class sederhana untuk menyimpan warna badge genre.
+     * ================================================================
+     */
     private final MusicManager manager = MusicManager.getInstance();
     private Runnable onLogout;
     private Song selectedSong = null;
@@ -97,6 +117,16 @@ public class MainController {
         this.onLogout = onLogout;
     }
 
+    /**
+     * initialize() dipanggil otomatis oleh FXMLLoader setelah semua @FXML di-inject.
+     * Urutan inisialisasi:
+     *  1. Terapkan style aktif/inaktif pada tombol navigasi sidebar.
+     *  2. Setup kolom tabel (Pustaka, Favorit, Playlist) via setupTable().
+     *  3. Bind data dari MusicManager ke TableView dan ComboBox.
+     *  4. Pasang listener: pencarian real-time, seleksi tabel, seleksi playlist.
+     *  5. Nonaktifkan tombol Edit & Hapus sampai ada baris yang dipilih.
+     *  6. Inisialisasi filter genre dan custom cell factory untuk ListView playlist.
+     */
     @FXML
     public void initialize() {
         // Setup initial state
@@ -146,6 +176,11 @@ public class MainController {
     }
 
     /**
+     * setupPlaylistCellFactory() — Mengatur tampilan setiap item di ListView playlist.
+     * Setiap baris menampilkan badge berwarna (Public / Milik Anda / Lainnya)
+     * di sebelah nama playlist beserta jumlah lagu di dalamnya.
+     * Badge ditentukan berdasarkan apakah playlist milik user saat ini dan statusnya.
+     *
      * Custom cell factory untuk ListView playlist.
      * Menampilkan label [Public], [Milik Anda], atau [Lainnya] di depan nama playlist.
      */
@@ -193,6 +228,15 @@ public class MainController {
         });
     }
 
+    /**
+     * setupTable() — Konfigurasi generik untuk semua TableView<Song> dalam aplikasi.
+     * Dipakai oleh tabelPustaka, tabelFavorit, dan tabelPlaylistSong agar tidak ada
+     * duplikasi kode. Setiap kolom dikonfigurasi sebagai berikut:
+     *  - colNo    : Nomor urut (dihitung dari index baris, bukan dari data).
+     *  - colGenre : Ditampilkan sebagai badge berwarna sesuai genre.
+     *  - colDurasi: Diformat dengan satuan "min" (menit).
+     *  - colFav   : Tombol toggle ♥/♡ untuk menandai/membatalkan favorit.
+     */
     private void setupTable(TableView<Song> tabel,
                             TableColumn<Song, Integer> colNo, TableColumn<Song, String> colId,
                             TableColumn<Song, String> colJudul, TableColumn<Song, String> colArtis,
@@ -259,6 +303,10 @@ public class MainController {
         });
     }
 
+    /**
+     * getGenreBadgeStyle() — Mengembalikan warna background dan teks badge
+     * sesuai nama genre. Genre yang tidak dikenal mendapat warna abu-abu netral.
+     */
     private BadgeStyle getGenreBadgeStyle(String genre) {
         if (genre == null) return new BadgeStyle("#F3F4F6", "#374151");
         return switch (genre.toLowerCase()) {
@@ -282,6 +330,11 @@ public class MainController {
     @FXML private void onNavStatistik() { navTo(btnNavStatistik, panelStatistik); refreshStatistik(); }
     @FXML private void onNavIO()        { navTo(btnNavIO, panelImportExport); }
 
+    /**
+     * navTo() — Mengelola pergantian panel konten utama.
+     * Menyembunyikan semua panel lalu menampilkan hanya panel yang dipilih,
+     * serta memperbarui style tombol aktif/inaktif di sidebar.
+     */
     private void navTo(Button btn, VBox panel) {
         if (activeNavBtn != null) {
             activeNavBtn.setStyle(INACTIVE_STYLE);
@@ -306,6 +359,15 @@ public class MainController {
 
     // ---- CRUD Actions ----
 
+    // ================================================================
+    // CRUD LAGU — Tambah, Edit, Hapus, Hapus Semua, Bersihkan Form
+    // ================================================================
+
+    /**
+     * onTambahLagu() — Membaca semua field form, memvalidasi input (tidak boleh kosong,
+     * durasi dan tahun harus angka), lalu meneruskan ke MusicManager.tambahLagu().
+     * Jika ID sudah ada di daftar, operasi dibatalkan dengan pesan peringatan duplikat.
+     */
     @FXML
     private void onTambahLagu() {
         String id = tfId.getText().trim();
@@ -335,6 +397,11 @@ public class MainController {
         }
     }
 
+    /**
+     * onEditLagu() — Memperbarui data lagu yang sedang dipilih (selectedSong)
+     * menggunakan nilai terbaru dari form. Validasi sama seperti onTambahLagu().
+     * Tombol ini hanya aktif ketika ada baris yang dipilih di tabelPustaka.
+     */
     @FXML
     private void onEditLagu() {
         if (selectedSong == null) return;
@@ -361,6 +428,10 @@ public class MainController {
         }
     }
 
+    /**
+     * onHapusLagu() — Menghapus lagu yang sedang dipilih setelah konfirmasi dialog.
+     * Setelah hapus, form dibersihkan dan filter genre diperbarui.
+     */
     @FXML
     private void onHapusLagu() {
         if (selectedSong == null) return;
@@ -372,6 +443,11 @@ public class MainController {
         }
     }
 
+    /**
+     * onHapusSemuaLagu() — Menghapus seluruh lagu dari database setelah konfirmasi.
+     * Setelah selesai, semua TableView, ComboBox, dan ListView playlist di-reset
+     * agar tampilan kembali ke kondisi kosong.
+     */
     @FXML
     private void onHapusSemuaLagu() {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION,
@@ -403,8 +479,14 @@ public class MainController {
         tabelPustaka.getSelectionModel().clearSelection();
     }
 
-    // ---- Filter & Refresh ----
+    // ================================================================
+    // FILTER & REFRESH — Pencarian dan Sinkronisasi Tampilan
+    // ================================================================
 
+    /**
+     * applyFilters() — Menerapkan filter bersamaan: keyword dari tfSearch
+     * dan genre dari cbGenre, lalu memperbarui item di tabelPustaka.
+     */
     private void applyFilters() {
         String kw = tfSearch.getText();
         String genre = cbGenre.getSelectionModel().getSelectedItem();
@@ -433,8 +515,15 @@ public class MainController {
         tfTahun.setText(String.valueOf(s.getTahun()));
     }
 
-    // ---- Playlist Actions ----
+    // ================================================================
+    // MANAJEMEN PLAYLIST — Buat, Hapus, Toggle Public, Tambah/Hapus Lagu
+    // ================================================================
 
+    /**
+     * onBuatPlaylist() — Membuat playlist baru milik user yang sedang login.
+     * Status public/private ditentukan oleh CheckBox cbPublicPlaylist.
+     * Hanya user yang sedang login yang bisa membuat playlist.
+     */
     @FXML
     private void onBuatPlaylist() {
         String nama = tfPlaylistNama.getText().trim();
@@ -487,6 +576,11 @@ public class MainController {
         alert("Berhasil", "Playlist \"" + pl.getNama() + "\" sekarang berstatus " + status + ".");
     }
 
+    /**
+     * onTambahKePlaylist() — Menambahkan lagu yang dipilih dari cbLaguTersedia
+     * ke playlist yang sedang dipilih. Hanya pemilik playlist yang bisa menambah lagu.
+     * Jika lagu sudah ada dalam playlist, operasi dibatalkan dengan pesan info.
+     */
     @FXML
     private void onTambahKePlaylist() {
         Playlist pl = listViewPlaylist.getSelectionModel().getSelectedItem();
@@ -507,6 +601,10 @@ public class MainController {
         listViewPlaylist.refresh();
     }
 
+    /**
+     * onHapusDariPlaylist() — Menghapus lagu yang dipilih dari tabelPlaylistSong
+     * milik playlist yang sedang aktif. Hanya pemilik playlist yang bisa menghapus.
+     */
     @FXML
     private void onHapusDariPlaylist() {
         Playlist pl = listViewPlaylist.getSelectionModel().getSelectedItem();
@@ -524,8 +622,17 @@ public class MainController {
         listViewPlaylist.refresh();
     }
 
-    // ---- Statistik ----
+    // ================================================================
+    // STATISTIK — Ringkasan Koleksi dan Distribusi Genre
+    // ================================================================
 
+    /**
+     * refreshStatistik() — Memperbarui seluruh panel statistik:
+     *  - Kartu angka: total lagu, artis unik, genre unik, lagu favorit.
+     *  - Bar chart distribusi genre: setiap genre ditampilkan sebagai baris
+     *    dengan label nama, progress bar berwarna, dan jumlah/persentase.
+     * Dipanggil setiap kali user berpindah ke panel Statistik.
+     */
     private void refreshStatistik() {
         long favCnt = manager.getDaftarLagu().stream().filter(Song::isFavorit).count();
         lblStatTotal.setText(String.valueOf(manager.getDaftarLagu().size()));
@@ -566,8 +673,15 @@ public class MainController {
         }
     }
 
-    // ---- Import / Export ----
+    // ================================================================
+    // IMPORT / EXPORT CSV
+    // ================================================================
 
+    /**
+     * onExportCSV() — Membuka dialog simpan file, lalu mengekspor semua lagu
+     * ke file CSV menggunakan MusicManager.exportCSV(). Menampilkan notifikasi
+     * sukses beserta jumlah lagu dan path file yang disimpan.
+     */
     @FXML
     private void onExportCSV() {
         FileChooser fc = new FileChooser();
@@ -585,6 +699,11 @@ public class MainController {
         }
     }
 
+    /**
+     * onImportCSV() — Membuka dialog pilih file CSV, lalu mengimpor data lagu
+     * via MusicManager.importCSV(). Lagu dengan ID yang sudah ada akan dilewati.
+     * Setelah import, TableView, ComboBox, dan filter genre otomatis diperbarui.
+     */
     @FXML
     private void onImportCSV() {
         FileChooser fc = new FileChooser();
@@ -605,8 +724,11 @@ public class MainController {
         }
     }
 
-    // ---- Helper Methods & Auto Save/Load ----
+    // ================================================================
+    // HELPER METHODS — Dialog, Auto Save/Load, Keyboard Shortcut
+    // ================================================================
 
+    /** Menampilkan dialog informasi sederhana (OK). */
     private void alert(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setTitle(title);
@@ -615,6 +737,7 @@ public class MainController {
         a.showAndWait();
     }
 
+    /** Menampilkan dialog konfirmasi YES/NO. Mengembalikan true jika user memilih YES. */
     private boolean confirm(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION, msg, ButtonType.YES, ButtonType.NO);
         a.setTitle(title);
@@ -623,6 +746,12 @@ public class MainController {
         return res.isPresent() && res.get() == ButtonType.YES;
     }
 
+    /**
+     * loadDataOtomatis() — Dipanggil dari Main.java setelah login berhasil.
+     * Memuat lagu dari SQLite ke TableView dan ComboBox. Jika database kosong,
+     * secara otomatis mengimpor dari file CSV cadangan (DB_FILE).
+     * Setelah itu memuat playlist milik user dan menyetel label username di header.
+     */
     public void loadDataOtomatis() {
         // Load lagu dari SQLite
         tabelPustaka.setItems(manager.getDaftarLagu());
@@ -662,7 +791,15 @@ public class MainController {
         System.out.println("Data sudah tersimpan di SQLite.");
     }
     
-    // Register shortcuts - dipanggil dari Main
+    /**
+     * registerShortcuts() — Mendaftarkan keyboard shortcut global pada Scene.
+     * Dipanggil dari Main.java setelah scene berhasil ditampilkan.
+     *
+     * Shortcut yang tersedia:
+     *  - Ctrl+F : Fokus ke field pencarian (tfSearch).
+     *  - Ctrl+S : Membuka dialog export CSV.
+     *  - Escape : Membersihkan form input dan menghapus seleksi tabel.
+     */
     public void registerShortcuts(javafx.scene.Scene scene) {
         scene.setOnKeyPressed(e -> {
             boolean cmdOrCtrl = e.isControlDown() || e.isShortcutDown();
