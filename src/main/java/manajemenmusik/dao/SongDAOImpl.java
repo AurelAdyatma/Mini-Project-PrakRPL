@@ -36,7 +36,7 @@ public class SongDAOImpl implements SongDAO {
 
     @Override
     public void hapus(Song song) {
-        String sql = "DELETE FROM songs WHERE id = ?";
+        String sql = "UPDATE songs SET is_deleted = 1 WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, song.getId());
@@ -51,9 +51,33 @@ public class SongDAOImpl implements SongDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("DELETE FROM playlist_songs");
-            stmt.executeUpdate("DELETE FROM songs");
+            stmt.executeUpdate("UPDATE songs SET is_deleted = 1");
         } catch (SQLException e) {
             System.err.println("Gagal hapus semua lagu: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void pulihkan(Song song) {
+        String sql = "UPDATE songs SET is_deleted = 0 WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, song.getId());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Gagal pulihkan lagu: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void hapusPermanen(Song song) {
+        String sql = "DELETE FROM songs WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, song.getId());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Gagal hapus permanen lagu: " + e.getMessage());
         }
     }
 
@@ -86,7 +110,7 @@ public class SongDAOImpl implements SongDAO {
     @Override
     public ObservableList<Song> getAll() {
         ObservableList<Song> list = FXCollections.observableArrayList();
-        String sql = "SELECT * FROM songs";
+        String sql = "SELECT * FROM songs WHERE is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -100,9 +124,25 @@ public class SongDAOImpl implements SongDAO {
     }
 
     @Override
+    public ObservableList<Song> getRecycleBin() {
+        ObservableList<Song> list = FXCollections.observableArrayList();
+        String sql = "SELECT * FROM songs WHERE is_deleted = 1";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(mapResultSetToSong(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("Gagal getRecycleBin: " + e.getMessage());
+        }
+        return list;
+    }
+
+    @Override
     public ObservableList<Song> getFavorit() {
         ObservableList<Song> list = FXCollections.observableArrayList();
-        String sql = "SELECT * FROM songs WHERE favorit = 1";
+        String sql = "SELECT * FROM songs WHERE favorit = 1 AND is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -120,18 +160,18 @@ public class SongDAOImpl implements SongDAO {
         ObservableList<Song> list = FXCollections.observableArrayList();
         String kw = (keyword == null) ? "" : keyword.toLowerCase();
         boolean filterGenre = genre != null && !genre.equals("Semua Genre");
-        
-        String sql = "SELECT * FROM songs WHERE 1=1";
+
+        String sql = "SELECT * FROM songs WHERE is_deleted = 0";
         if (filterGenre) {
             sql += " AND genre = ?";
         }
         if (!kw.isBlank()) {
             sql += " AND (LOWER(id) LIKE ? OR LOWER(judul) LIKE ? OR LOWER(artis) LIKE ? OR LOWER(genre) LIKE ?)";
         }
-        
+
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+
             int paramIndex = 1;
             if (filterGenre) {
                 pstmt.setString(paramIndex++, genre);
@@ -143,7 +183,7 @@ public class SongDAOImpl implements SongDAO {
                 pstmt.setString(paramIndex++, likeKw);
                 pstmt.setString(paramIndex++, likeKw);
             }
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapResultSetToSong(rs));
@@ -158,7 +198,7 @@ public class SongDAOImpl implements SongDAO {
     @Override
     public Set<String> getGenreUnik() {
         Set<String> set = new TreeSet<>();
-        String sql = "SELECT DISTINCT genre FROM songs";
+        String sql = "SELECT DISTINCT genre FROM songs WHERE is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -174,7 +214,7 @@ public class SongDAOImpl implements SongDAO {
     @Override
     public Set<String> getArtisUnik() {
         Set<String> set = new TreeSet<>();
-        String sql = "SELECT DISTINCT artis FROM songs";
+        String sql = "SELECT DISTINCT artis FROM songs WHERE is_deleted = 0";
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -190,7 +230,7 @@ public class SongDAOImpl implements SongDAO {
     @Override
     public Map<String, Long> getStatistikGenre() {
         Map<String, Long> map = new LinkedHashMap<>();
-        String sql = "SELECT genre, COUNT(*) as jumlah FROM songs GROUP BY genre ORDER BY jumlah DESC";
+        String sql = "SELECT genre, COUNT(*) as jumlah FROM songs WHERE is_deleted = 0 GROUP BY genre ORDER BY jumlah DESC";
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -205,23 +245,23 @@ public class SongDAOImpl implements SongDAO {
 
     private Song mapResultSetToSong(ResultSet rs) throws SQLException {
         Song s = new Song(
-            rs.getString("id"),
-            rs.getString("judul"),
-            rs.getString("artis"),
-            rs.getString("genre"),
-            rs.getInt("durasi"),
-            rs.getInt("tahun")
+                rs.getString("id"),
+                rs.getString("judul"),
+                rs.getString("artis"),
+                rs.getString("genre"),
+                rs.getInt("durasi"),
+                rs.getInt("tahun")
         );
         s.setFavorit(rs.getInt("favorit") == 1);
-        
+
         // Listeners to update DB if changed from UI (like favorite toggle)
         s.favoritProperty().addListener((obs, oldV, newV) -> {
             updateFavoritStatus(s.getId(), newV);
         });
-        
+
         return s;
     }
-    
+
     private void updateFavoritStatus(String id, boolean favorit) {
         String sql = "UPDATE songs SET favorit = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
