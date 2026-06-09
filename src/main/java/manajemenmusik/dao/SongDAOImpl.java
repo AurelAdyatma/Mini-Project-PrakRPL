@@ -10,13 +10,6 @@ import java.util.*;
 
 public class SongDAOImpl implements SongDAO {
 
-    private int currentUserId = -1;
-
-    @Override
-    public void setCurrentUserId(int userId) {
-        this.currentUserId = userId;
-    }
-
     public SongDAOImpl() {
         DatabaseConnection.initializeDatabase();
     }
@@ -43,7 +36,7 @@ public class SongDAOImpl implements SongDAO {
 
     @Override
     public void hapus(Song song) {
-        String sql = "UPDATE songs SET is_deleted = 1 WHERE id = ?";
+        String sql = "DELETE FROM songs WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, song.getId());
@@ -58,33 +51,9 @@ public class SongDAOImpl implements SongDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("DELETE FROM playlist_songs");
-            stmt.executeUpdate("UPDATE songs SET is_deleted = 1");
+            stmt.executeUpdate("DELETE FROM songs");
         } catch (SQLException e) {
             System.err.println("Gagal hapus semua lagu: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void pulihkan(Song song) {
-        String sql = "UPDATE songs SET is_deleted = 0 WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, song.getId());
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.err.println("Gagal pulihkan lagu: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void hapusPermanen(Song song) {
-        String sql = "DELETE FROM songs WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, song.getId());
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.err.println("Gagal hapus permanen lagu: " + e.getMessage());
         }
     }
 
@@ -117,16 +86,12 @@ public class SongDAOImpl implements SongDAO {
     @Override
     public ObservableList<Song> getAll() {
         ObservableList<Song> list = FXCollections.observableArrayList();
-        String sql = "SELECT s.*, (CASE WHEN uf.song_id IS NOT NULL THEN 1 ELSE 0 END) as favorit " +
-                     "FROM songs s LEFT JOIN user_favorites uf ON s.id = uf.song_id AND uf.user_id = ? " +
-                     "WHERE s.is_deleted = 0";
+        String sql = "SELECT * FROM songs";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, currentUserId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToSong(rs));
-                }
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(mapResultSetToSong(rs));
             }
         } catch (SQLException e) {
             System.err.println("Gagal getAll: " + e.getMessage());
@@ -135,38 +100,14 @@ public class SongDAOImpl implements SongDAO {
     }
 
     @Override
-    public ObservableList<Song> getRecycleBin() {
-        ObservableList<Song> list = FXCollections.observableArrayList();
-        String sql = "SELECT s.*, (CASE WHEN uf.song_id IS NOT NULL THEN 1 ELSE 0 END) as favorit " +
-                     "FROM songs s LEFT JOIN user_favorites uf ON s.id = uf.song_id AND uf.user_id = ? " +
-                     "WHERE s.is_deleted = 1";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, currentUserId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToSong(rs));
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Gagal getRecycleBin: " + e.getMessage());
-        }
-        return list;
-    }
-
-    @Override
     public ObservableList<Song> getFavorit() {
         ObservableList<Song> list = FXCollections.observableArrayList();
-        String sql = "SELECT s.*, 1 as favorit FROM songs s " +
-                     "JOIN user_favorites uf ON s.id = uf.song_id " +
-                     "WHERE uf.user_id = ? AND s.is_deleted = 0";
+        String sql = "SELECT * FROM songs WHERE favorit = 1";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, currentUserId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToSong(rs));
-                }
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(mapResultSetToSong(rs));
             }
         } catch (SQLException e) {
             System.err.println("Gagal getFavorit: " + e.getMessage());
@@ -180,22 +121,18 @@ public class SongDAOImpl implements SongDAO {
         String kw = (keyword == null) ? "" : keyword.toLowerCase();
         boolean filterGenre = genre != null && !genre.equals("Semua Genre");
         
-        String sql = "SELECT s.*, (CASE WHEN uf.song_id IS NOT NULL THEN 1 ELSE 0 END) as favorit " +
-                     "FROM songs s LEFT JOIN user_favorites uf ON s.id = uf.song_id AND uf.user_id = ? " +
-                     "WHERE s.is_deleted = 0";
+        String sql = "SELECT * FROM songs WHERE 1=1";
         if (filterGenre) {
-            sql += " AND s.genre = ?";
+            sql += " AND genre = ?";
         }
         if (!kw.isBlank()) {
-            sql += " AND (LOWER(s.id) LIKE ? OR LOWER(s.judul) LIKE ? OR LOWER(s.artis) LIKE ? OR LOWER(s.genre) LIKE ?)";
+            sql += " AND (LOWER(id) LIKE ? OR LOWER(judul) LIKE ? OR LOWER(artis) LIKE ? OR LOWER(genre) LIKE ?)";
         }
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             int paramIndex = 1;
-            pstmt.setInt(paramIndex++, currentUserId);
-            
             if (filterGenre) {
                 pstmt.setString(paramIndex++, genre);
             }
@@ -206,7 +143,7 @@ public class SongDAOImpl implements SongDAO {
                 pstmt.setString(paramIndex++, likeKw);
                 pstmt.setString(paramIndex++, likeKw);
             }
-
+            
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapResultSetToSong(rs));
@@ -221,7 +158,7 @@ public class SongDAOImpl implements SongDAO {
     @Override
     public Set<String> getGenreUnik() {
         Set<String> set = new TreeSet<>();
-        String sql = "SELECT DISTINCT genre FROM songs WHERE is_deleted = 0";
+        String sql = "SELECT DISTINCT genre FROM songs";
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -237,7 +174,7 @@ public class SongDAOImpl implements SongDAO {
     @Override
     public Set<String> getArtisUnik() {
         Set<String> set = new TreeSet<>();
-        String sql = "SELECT DISTINCT artis FROM songs WHERE is_deleted = 0";
+        String sql = "SELECT DISTINCT artis FROM songs";
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -253,7 +190,7 @@ public class SongDAOImpl implements SongDAO {
     @Override
     public Map<String, Long> getStatistikGenre() {
         Map<String, Long> map = new LinkedHashMap<>();
-        String sql = "SELECT genre, COUNT(*) as jumlah FROM songs WHERE is_deleted = 0 GROUP BY genre ORDER BY jumlah DESC";
+        String sql = "SELECT genre, COUNT(*) as jumlah FROM songs GROUP BY genre ORDER BY jumlah DESC";
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -268,36 +205,28 @@ public class SongDAOImpl implements SongDAO {
 
     private Song mapResultSetToSong(ResultSet rs) throws SQLException {
         Song s = new Song(
-                rs.getString("id"),
-                rs.getString("judul"),
-                rs.getString("artis"),
-                rs.getString("genre"),
-                rs.getInt("durasi"),
-                rs.getInt("tahun")
+            rs.getString("id"),
+            rs.getString("judul"),
+            rs.getString("artis"),
+            rs.getString("genre"),
+            rs.getInt("durasi"),
+            rs.getInt("tahun")
         );
         s.setFavorit(rs.getInt("favorit") == 1);
-
+        
         // Listeners to update DB if changed from UI (like favorite toggle)
         s.favoritProperty().addListener((obs, oldV, newV) -> {
             updateFavoritStatus(s.getId(), newV);
         });
-
+        
         return s;
     }
-
+    
     private void updateFavoritStatus(String id, boolean favorit) {
-        if (currentUserId == -1) return; // Belum login
-
-        String sql;
-        if (favorit) {
-            sql = "INSERT OR IGNORE INTO user_favorites(user_id, song_id) VALUES(?, ?)";
-        } else {
-            sql = "DELETE FROM user_favorites WHERE user_id = ? AND song_id = ?";
-        }
-
+        String sql = "UPDATE songs SET favorit = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, currentUserId);
+            pstmt.setInt(1, favorit ? 1 : 0);
             pstmt.setString(2, id);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -327,14 +256,8 @@ public class SongDAOImpl implements SongDAO {
                 if (p.length >= 6) {
                     try {
                         Song s = new Song(p[0], p[1], p[2], p[3], Integer.parseInt(p[4]), Integer.parseInt(p[5]));
-                        boolean isFav = false;
-                        if (p.length >= 7) isFav = Boolean.parseBoolean(p[6]);
-                        s.setFavorit(isFav);
-                        
-                        if (tambah(s)) {
-                            count++;
-                            if (isFav) updateFavoritStatus(s.getId(), true);
-                        }
+                        if (p.length >= 7) s.setFavorit(Boolean.parseBoolean(p[6]));
+                        if (tambah(s)) count++;
                     } catch (NumberFormatException ignored) {}
                 }
             }
