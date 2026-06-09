@@ -70,6 +70,10 @@
                            -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;
                            -fx-cursor: hand; -fx-padding: 10 14;" text="Playlist" />
 
+            <Button fx:id="btnNavRecycle" alignment="CENTER_LEFT" onAction="#onNavRecycleBin" prefWidth="224" style="-fx-background-color: transparent; -fx-background-radius: 6;
+                           -fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;
+                           -fx-cursor: hand; -fx-padding: 10 14;" text="Recycle Bin" />
+
             <Label style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #6B7280;
                           -fx-padding: 18 14 2 14;" text="TOOLS" />
 
@@ -260,6 +264,40 @@
                 </TableView>
             </VBox>
 
+            <!-- ========== PANEL RECYCLE BIN ========== -->
+            <VBox fx:id="panelRecycleBin" managed="false" spacing="16" visible="false">
+                <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #111827;" text="Recycle Bin" />
+                <Label style="-fx-font-size: 13px; -fx-text-fill: #4B5563;" text="Lagu yang dihapus akan masuk ke sini. Anda dapat memulihkannya kembali atau menghapusnya secara permanen." wrapText="true" />
+
+                <HBox spacing="10">
+                    <Button onAction="#onPulihkanLagu" style="-fx-background-color: #10B981; -fx-background-radius: 6;
+                                   -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                   -fx-cursor: hand; -fx-padding: 8 16;" text="Pulihkan Terpilih" />
+                    <Button onAction="#onHapusPermanenLagu" style="-fx-background-color: #EF4444; -fx-background-radius: 6;
+                                   -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                   -fx-cursor: hand; -fx-padding: 8 16;" text="Hapus Permanen Terpilih" />
+                </HBox>
+
+                <TableView fx:id="tabelRecycleBin" style="-fx-background-color: transparent; -fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6;" VBox.vgrow="ALWAYS">
+                    <placeholder>
+                        <Label style="-fx-text-fill: #9CA3AF; -fx-font-size: 14px;" text="Recycle Bin kosong" />
+                    </placeholder>
+                    <columns>
+                        <TableColumn fx:id="colNoRec" prefWidth="45" sortable="false" text="#" />
+                        <TableColumn fx:id="colIdRec" prefWidth="65" text="ID" />
+                        <TableColumn fx:id="colJudulRec" prefWidth="210" text="JUDUL" />
+                        <TableColumn fx:id="colArtisRec" prefWidth="160" text="ARTIS" />
+                        <TableColumn fx:id="colGenreRec" prefWidth="90" text="GENRE" />
+                        <TableColumn fx:id="colDurasiRec" prefWidth="80" text="DURASI" />
+                        <TableColumn fx:id="colTahunRec" prefWidth="75" text="TAHUN" />
+                        <TableColumn fx:id="colFavRec" prefWidth="55" sortable="false" text="♥" />
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN" />
+                    </columnResizePolicy>
+                </TableView>
+            </VBox>
+
             <!-- ========== PANEL PLAYLIST ========== -->
             <VBox fx:id="panelPlaylist" managed="false" spacing="16" visible="false">
                 <Label style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #111827;" text="Manajemen Playlist" />
@@ -423,6 +461,26 @@
                     <Button onAction="#onImportCSV" style="-fx-background-color: #8B5CF6; -fx-background-radius: 20;
                                    -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
                                    -fx-cursor: hand; -fx-padding: 9 22;" text="Import Lagu dari CSV" />
+                </VBox>
+
+                <!-- Backup/Restore Card -->
+                <VBox spacing="14" style="-fx-background-color: #FFFFFF; -fx-background-radius: 10; -fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 10;">
+                    <padding>
+                        <Insets bottom="24" left="24" right="24" top="24" />
+                    </padding>
+
+                    <Label style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #111827;" text="Backup &amp; Restore Database" />
+
+                    <Label style="-fx-font-size: 13px; -fx-text-fill: #4B5563;" text="Salin file database aktif sebagai cadangan atau pulihkan dari file backup." wrapText="true" />
+
+                    <HBox spacing="10">
+                        <Button onAction="#onBackupDatabase" style="-fx-background-color: #2563EB; -fx-background-radius: 20;
+                                       -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                       -fx-cursor: hand; -fx-padding: 9 22;" text="Backup Database" />
+                        <Button onAction="#onRestoreDatabase" style="-fx-background-color: #D97706; -fx-background-radius: 20;
+                                       -fx-text-fill: #FFFFFF; -fx-font-size: 13px; -fx-font-weight: bold;
+                                       -fx-cursor: hand; -fx-padding: 9 22;" text="Restore Database" />
+                    </HBox>
                 </VBox>
             </VBox>
 
