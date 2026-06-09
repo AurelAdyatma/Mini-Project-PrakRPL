@@ -51,6 +51,7 @@ public class MusicManager {
         User user = userDAO.login(username, password);
         if (user != null) {
             this.currentUser = user;
+            songDAO.setCurrentUserId(user.getId());
         }
         return user;
     }
@@ -61,6 +62,7 @@ public class MusicManager {
 
     public void logout() {
         this.currentUser = null;
+        songDAO.setCurrentUserId(-1);
     }
 
     // ---- Delegasi ke SongDAO ----

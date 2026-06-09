@@ -14,6 +14,8 @@ import java.util.Set;
  */
 public interface SongDAO {
 
+    void setCurrentUserId(int userId);
+
     boolean tambah(Song song);
 
     void hapus(Song song);
