@@ -64,7 +64,7 @@ Aplikasi menggunakan **SQLite** dengan file database lokal bernama `musikapp.db`
 ## 👥 Anggota Kelompok
 
 | Nama | NIM |
-|---|---|---|
+|---|---|
 | Klemens Aurel Adyatma | 71241076 |
 | Audris Kasula | 71241105 |
 | Benteng Gading Aribowo | 71241143 |
