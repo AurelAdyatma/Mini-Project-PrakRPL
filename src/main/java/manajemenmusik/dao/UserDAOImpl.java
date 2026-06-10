@@ -1,6 +1,7 @@
 package manajemenmusik.dao;
 
 import manajemenmusik.model.Admin;
+import manajemenmusik.model.RegularUser;
 import manajemenmusik.model.User;
 
 import java.sql.*;
@@ -16,11 +17,12 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean register(String username, String password) {
-        String sql = "INSERT INTO users(username, password) VALUES(?, ?)";
+        String sql = "INSERT INTO users(username, password, role) VALUES(?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
             pstmt.setString(2, password);
+            pstmt.setString(3, "admin".equalsIgnoreCase(username) ? "Admin" : "User");
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -32,7 +34,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public User login(String username, String password) {
-        String sql = "SELECT id, username, password FROM users WHERE username = ? AND password = ?";
+        String sql = "SELECT id, username, password, role FROM users WHERE username = ? AND password = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
@@ -42,8 +44,14 @@ public class UserDAOImpl implements UserDAO {
                     int id = rs.getInt("id");
                     String uname = rs.getString("username");
                     String pass = rs.getString("password");
-                    // Gunakan Admin sebagai concrete class (polymorphism)
-                    Admin user = new Admin(uname, pass);
+                    String role = rs.getString("role");
+                    
+                    User user;
+                    if ("Admin".equalsIgnoreCase(role)) {
+                        user = new Admin(uname, pass);
+                    } else {
+                        user = new RegularUser(uname, pass);
+                    }
                     user.setId(id);
                     return user;
                 }

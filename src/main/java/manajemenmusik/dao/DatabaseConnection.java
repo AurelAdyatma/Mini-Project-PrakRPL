@@ -22,7 +22,8 @@ public class DatabaseConnection {
             stmt.execute("CREATE TABLE IF NOT EXISTS users ("
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + "username TEXT NOT NULL UNIQUE, "
-                    + "password TEXT NOT NULL"
+                    + "password TEXT NOT NULL, "
+                    + "role TEXT DEFAULT 'User'"
                     + ");");
 
             // Tabel songs (global)
@@ -64,6 +65,8 @@ public class DatabaseConnection {
                     + ");");
 
             // Migrasi: tambah/hapus kolom baru jika tabel lama sudah ada
+            try { stmt.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'User'"); } catch (SQLException ignored) {}
+            try { stmt.execute("UPDATE users SET role = 'Admin' WHERE username = 'admin'"); } catch (SQLException ignored) {}
             try { stmt.execute("ALTER TABLE playlists ADD COLUMN user_id INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
             try { stmt.execute("ALTER TABLE playlists ADD COLUMN is_public INTEGER DEFAULT 0"); } catch (SQLException ignored) {}
             try { stmt.execute("ALTER TABLE playlist_songs ADD COLUMN playlist_user_id INTEGER DEFAULT 0"); } catch (SQLException ignored) {}

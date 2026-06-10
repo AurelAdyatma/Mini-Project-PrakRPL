@@ -78,7 +78,7 @@ public class MainController {
 
     // ---- Navigasi ----
     @FXML private Button btnNavPustaka, btnNavFavorit, btnNavPlaylist, btnNavStatistik, btnNavIO, btnNavRecycle;
-    @FXML private VBox panelPustaka, panelFavorit, panelPlaylist, panelStatistik, panelImportExport, panelRecycleBin;
+    @FXML private VBox panelPustaka, panelFavorit, panelPlaylist, panelStatistik, panelImportExport, panelRecycleBin, backupRestoreCard;
     private Button activeNavBtn;
 
     // ---- Header ----
@@ -146,6 +146,15 @@ public class MainController {
         btnNavIO.setStyle(INACTIVE_STYLE);
         if (btnNavRecycle != null) btnNavRecycle.setStyle(INACTIVE_STYLE);
         activeNavBtn = btnNavPustaka;
+
+        // Sembunyikan fitur Backup/Restore jika bukan Admin
+        User currentUser = manager.getCurrentUser();
+        if (currentUser != null && !"Admin".equalsIgnoreCase(currentUser.getRole())) {
+            if (backupRestoreCard != null) {
+                backupRestoreCard.setVisible(false);
+                backupRestoreCard.setManaged(false);
+            }
+        }
 
         // Init tables
         setupTable(tabelPustaka, colNoPustaka, colIdPustaka, colJudulPustaka, colArtisPustaka, colGenrePustaka, colDurasiPustaka, colTahunPustaka, colFavPustaka);
